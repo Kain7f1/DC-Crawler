@@ -1,8 +1,10 @@
 #############################################################################
-# 2023-10-08 Hansol Lee
-# [실행하기 전에, Users 폴더에 chromedriver.exe를 현재 크롬 버전에 맞게 다운받아주세요]
+# 만든이 : Kain7f1
+# 생성일 : 2023-10-08
+# 전제 : 실행하기 전에, Users 폴더에 chromedriver.exe를 현재 크롬 버전에 맞게 다운받아주세요
 # 기능 : dcinside 크롤링 실행 함수
-from dcinside_crawler import get_url_dc, get_content_dc
+
+from dcinside_crawler import crawl_url, get_content_dc
 import utility_module as util
 #############################################################################
 #                                 << 설정값 >>

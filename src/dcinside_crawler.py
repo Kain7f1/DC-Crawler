@@ -14,24 +14,25 @@ import pandas as pd
 # 생성 파일 : url_dcinside_{gall_id}.csv
 # columns = ['date', 'title', 'url', 'media']
 @util.timer_decorator
-def get_url_dc(gall_url, keyword, blacklist, whitelist=None):
+def crawl_url(gall_url, search_keyword, blacklist, whitelist=None):
     # 0. 기본값 세팅 단계
     try:
+        community = "dcinside"
+        gall_id = cr.get_gall_id(gall_url)                   # 갤러리 id
         if whitelist is None:
             whitelist = []
         soup = cr.get_soup_from_url(gall_url)
-        keyword_unicode = util.convert_to_unicode(keyword)   # 입력받은 키워드를 유니코드로 변환한다
-        gall_id = cr.get_gall_id(gall_url)                   # 갤러리 id
+        keyword_unicode = util.convert_to_unicode(search_keyword)   # 입력받은 키워드를 유니코드로 변환한다
         print("gall_id : ", gall_id)
         url_base = cr.get_url_base(gall_url)  # "https" 부터 "board/" 이전까지의 url 부분 (major갤, minor갤, mini갤)
         print("url_base : ", url_base)
         max_content_num = cr.get_max_content_num(soup)   # 검색결과 중, 가장 큰 글번호 10000단위로 올림한 값/10000
         print("max_num : ", max_content_num)
-        folder_path = f"./url/{keyword}"        # 저장할 폴더 경로 설정
+        folder_path = f"./url/{search_keyword}"        # 저장할 폴더 경로 설정
         util.create_folder(folder_path)         # 폴더 만들기
         error_log = []                          # 에러 로그 저장
         sub_df_data = []                          # 데이터 리스트 ['date', 'title', 'url', 'media']
-        file_name = f"url_{keyword}_{gall_id}"            # 저장할 파일 이름
+        file_name = f"url_{search_keyword}_{gall_id}"            # 저장할 파일 이름
     except Exception as e:
         print("[기본값 세팅 단계에서 error가 발생함] ", e)
         print("[get_url_dcinside() 종료]")
@@ -40,7 +41,7 @@ def get_url_dc(gall_url, keyword, blacklist, whitelist=None):
     # 1. url 크롤링
     for search_pos in range(max_content_num, 0, -10000):
         temp_url = f"{url_base}/board/lists/?id={gall_id}&page=1&search_pos=-{search_pos}&s_type=search_subject_memo&s_keyword={keyword_unicode}"
-        print(f"[{keyword}의 검색 결과 / 범위 : {search_pos}~{search_pos-10000}] {temp_url}")
+        print(f"[{search_keyword}의 검색 결과 / 범위 : {search_pos}~{search_pos-10000}] {temp_url}")
         temp_soup = cr.get_soup_from_url(temp_url)  # soup 받아오기
         last_page = cr.get_last_page(temp_soup)     # 1만 단위 검색결과의 마지막 페이지
         # 페이지 넘기면서 크롤링
