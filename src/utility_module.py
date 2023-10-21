@@ -33,20 +33,19 @@ def create_folder(folder_path_='./'):
 
 
 #####################################
-# 입력값 : folder_path, endswith (파일이름의 검색조건 : 파일명의 끝)
+# read_file_paths()
+# 입력값 : folder_path_, endswith (파일이름의 검색조건 : 파일명의 끝)
 # 기능 : 폴더 내의 파일들 이름을 읽어서, 파일 이름들 리스트를 가져오는 함수
-def read_file_names(folder_path_='./', endswith='.csv'):
-    file_names = []
-    # 폴더 내의 모든 파일을 탐색
+def read_file_paths(folder_path_='./', endswith='.csv'):
+    file_paths = []
     print(f"[{folder_path_} 내의 파일을 탐색합니다. 검색조건 : endswith={endswith}]")
-    for filename in os.listdir(folder_path_):
-        if filename.endswith(endswith):
-            file_names.append(filename)
+    for file_path in os.listdir(folder_path_):      # 폴더 내의 모든 파일을 검색한다
+        if file_path.endswith(endswith):    # endswith 조건에 부합하면
+            file_paths.append(file_path)    # file_paths 에 추가한다
+    for file_path in file_paths:
+        print(file_path)            # 검색한 파일 경로를 출력한다.
 
-    print(f"{folder_path_} 내의 파일 이름 - read_file_names()의 결과")
-    for file_name in file_names:
-        print(file_name)
-    return file_names
+    return file_paths
 
 
 #####################################
@@ -64,7 +63,7 @@ def get_last_number_from_string(str_):
 #####################################
 # 기능 : 폴더 내 마지막 파일의 숫자를 가져오는 함수
 def get_last_number_in_folder(folder_path_='./'):
-    file_name_list = read_file_names(folder_path_, endswith='.csv')  # 폴더 내 파일들 이름 읽어온다
+    file_name_list = read_file_paths(folder_path_, endswith='.csv')  # 폴더 내 파일들 이름 읽어온다
     if len(file_name_list) == 0:    # 폴더 내에 endswith='.csv'인 파일이 없으면
         print('[폴더 내에 파일이 없습니다 : get_last_number_in_folder()]')
         return -1
@@ -86,31 +85,32 @@ def read_csv_file(file_path, folder_path_='./'):
     combined_path = os.path.join(folder_path_, file_path)        # os.path.join()을 사용하여 두 경로를 합칩니다.
     return pd.read_csv(combined_path, encoding='utf-8')
 
-
-#####################################
-# save_file()
-# 기능 : df의 내용을 파일로 저장한다
-def save_csv_file(df, file_path, folder_path_='./'):
-    combined_path = os.path.join(folder_path_, file_path)        # os.path.join()을 사용하여 두 경로를 합칩니다.
-    df.to_csv(combined_path, encoding='utf-8', index=False)     # df의 내용을 csv 형식으로 저장합니다
+#
+# #####################################
+# # save_csv_file()
+# # 기능 : df의 내용을 파일로 저장한다
+# def save_csv_file(df, file_path, folder_path_='./'):
+#     combined_path = os.path.join(folder_path_, file_path)        # os.path.join()을 사용하여 두 경로를 합칩니다.
+#     df.to_csv(combined_path, encoding='utf-8', index=False)     # df의 내용을 csv 형식으로 저장합니다
 
 
 #####################################
 # combine_csv_file()
 # 기능 : df형식의 데이터가 저장되어있는 .csv 파일들을 하나로 합친다
 def combine_csv_file(result_file_name, folder_path_='./'):
-    csv_file_names = read_file_names(folder_path_, endswith='.csv')   # .csv로 끝나는 파일들을 전부 검색한다
+    csv_file_paths = read_file_paths(folder_path_, endswith='.csv')   # .csv로 끝나는 파일들을 전부 검색한다
     dataframes = []
 
     # 1. 잘 불러왔는지 확인하기
-    print(f'[{len(csv_file_names)}개의 파일을 합치겠습니다]')
-    for csv_file_name in csv_file_names:
-        print(csv_file_name)
+    print(f'[{len(csv_file_paths)}개의 파일을 합치겠습니다]')
+    for csv_file_path in csv_file_paths:
+        print(csv_file_path)
 
     # 2. df 합치기
-    for csv_file_name in csv_file_names:
-        df_content = read_csv_file(file_path=csv_file_name, folder_path_=folder_path_)
+    for csv_file_path in csv_file_paths:
+        df_content = read_csv_file(file_path=csv_file_path, folder_path_=folder_path_)
         dataframes.append(df_content)
+
     merged_df = pd.concat(dataframes)
     # merged_df.drop_duplicates(subset='url', keep='first', inplace=True)  # 중복 제거 옵션
     merged_df = merged_df.reset_index(drop=True)
@@ -118,44 +118,9 @@ def combine_csv_file(result_file_name, folder_path_='./'):
 
     # 3. df를 csv로 만든다
     result_folder_path = create_folder(f"{folder_path_}/{result_file_name}")
-    save_csv_file(merged_df, file_path=f"{result_file_name}.csv", folder_path_=result_folder_path)
-    print(f"[{len(csv_file_names)}개의 파일을 {result_file_name}.csv 파일로 합쳤습니다]")
+    merged_df.to_csv(f"{result_folder_path}/{result_file_name}.csv", encoding='utf-8', index=False)
+    print(f"[{len(csv_file_paths)}개의 파일을 {result_file_name}.csv 파일로 합쳤습니다]")
     print(f"총 데이터 개수 : {len(merged_df)}개")
-
-
-#####################################
-# 기능 : 에러 로그를 읽고, 에러가 있으면 csv 파일을 만든다
-def error_check(error_log, file_name, folder_path_='./'):
-    # error 발생 했는지 확인
-    if len(error_log) > 0:
-        print("[에러 발생 로그 입니다]")
-        for error in error_log:
-            print(error)      # 에러 로그 출력
-        df_error = pd.DataFrame(error_log)   # df 생성
-        error_file_path = os.path.join(folder_path_, f"{file_name}_error.csv")
-        df_error.to_csv(error_file_path, encoding='utf-8', index=False)
-        print(f"[총 {len(error_log)}개의 에러 로그가 파일로 저장되었습니다]")
-        return len(error_log)
-    else:
-        return 0
-
-
-#####################################
-# 목적 : title 텍스트를 전처리한다
-# 기능 : 끝에붙은 대괄호와 안의 숫자, 콤마 (","), "u\202c" 를 제거한다
-def preprocess_title(text):
-    # 바꿀 것들 리스트
-    replacements = {
-        "\u202c": "",
-        ',': ' '
-    }
-    for old, new in replacements.items():
-        text = text.replace(old, new)       # replacements의 전자를 후자로 교체함
-    result = re.sub(r'\[\d+\]$', '', text).strip()  # 뒤에 붙는 댓글수 [3]같은거 제거한다. + 공백제거
-    if len(result) == 0:
-        return "_"  # 널값이면 "_"을 리턴한다
-    else:
-        return result  # 전처리 결과값 리턴
 
 
 #####################################
@@ -245,20 +210,22 @@ def is_korean(s):
 def remove_stopword(keyword):
     # 파일 열기
     folder_path = f'./{keyword}'
-    file_name = f'{keyword}_content_tokenized.csv'
+    read_file_path = f'{keyword}_content_tokenized.csv'
+    result_file_path = f"{keyword}_content_tokenized_removed_stopwords.csv"
     with open('stopwords.txt', 'r', encoding='utf-8') as file:
         # 라인별로 읽어 리스트로 저장
         stopwords = file.readlines()
     stopwords = [word.strip() for word in stopwords]
     print('stopwords.txt 를 불러왔습니다')
 
-    df = read_csv_file(folder_path, file_name)
-    print(f'{file_name} 를 불러왔습니다')
+    df = read_csv_file(folder_path, read_file_path)
+    print(f'{read_file_path} 를 불러왔습니다')
     for stopword in stopwords:
         df['content'] = df['content'].str.replace(f'\\b{stopword} \\b', '', regex=True)
     print('stopwords를 지웠습니다')
 
-    save_csv_file(df, folder_path, f'{keyword}_content_tokenized_removed_stopwords.csv')
+    df.to_csv(f"{folder_path}/{result_file_path}", encoding='utf-8', index=False)
+
     print(f'{keyword}_removed_stopwords.csv 파일을 저장했습니다')
 
 
