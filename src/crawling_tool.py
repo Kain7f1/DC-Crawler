@@ -2,6 +2,7 @@ import re
 import time
 import requests
 import datetime
+import pandas as pd
 import utility_module as util
 from bs4 import BeautifulSoup
 from selenium import webdriver
@@ -60,22 +61,55 @@ def get_driver():
 
 
 #############################################################################
-# get_soup_from_url()
+# get_soup()
 # 기능 : url을 받아 requests를 사용하여 soup를 리턴하는 함수입니다
 # 특징 : 오류발생 시 재귀하기 때문에, 성공적으로 soup를 받아올 수 있습니다.
-def get_soup_from_url(url, time_sleep=0):
+def get_soup(url, time_sleep=0, max_retries=600):
     try:
+        if max_retries <= 0:
+            print("[최대 재시도 횟수 초과 : get_soup()]")
+            return None
         with requests.Session() as session:
             response = session.get(url, headers=headers)
             time.sleep(time_sleep)
         soup = BeautifulSoup(response.text, "html.parser")
         if len(soup) == 0:  # 불러오는데 실패하면
-            print(f"[soup 로딩 실패, 반복] [get_soup_from_url(time_sleep=1)]")
-            soup = get_soup_from_url(url, 1)
+            print(f"[soup 로딩 실패, 반복] [get_soup(time_sleep=1)]")
+            soup = get_soup(url, 1)
     except Exception as e:
-        print(f"[오류 발생, 반복] [get_soup_from_url(time_sleep=1)] ", e)
-        soup = get_soup_from_url(url, 1)
+        print(f"[오류 발생, 반복] [get_soup(time_sleep=1)] ", e)
+        soup = get_soup(url, 1, max_retries-1)
     return soup
+
+
+#####################################
+# 기능 : 에러 로그를 검사하고, 에러가 있으면 csv 파일을 만든다
+def check_error_logs(error_logs, file_path_='./'):
+    # error 발생 했는지 확인
+    max_print_print = 5
+    if len(error_logs) > 0:                             # 에러 로그가 존재하면
+        print("[에러 발생 로그 입니다]")
+        for index, error_log in enumerate(error_logs):  # 에러 로그를 출력한다
+            print(f"[Index {index}] {error_log[-1]}")
+            if index >= max_print_print:                # 사용자에게 보여주기 위해 출력하는 용도이므로, 조금만 출력
+                break
+        error_log_columns = ['crawler_type', 'community', 'gall_name', 'search_keyword', 'error_info']
+        df_error_logs = pd.DataFrame(error_logs, columns=error_log_columns)        # df 생성 후 .csv 파일로 저장
+        df_error_logs.to_csv(file_path_, encoding='utf-8', index=False)
+        print(f"[총 {len(error_logs)}개의 에러 로그가 파일로 저장되었습니다]")
+    else:                                               # 에러가 존재하지 않으면, 종료
+        print("[에러가 없었습니다]")
+    return len(error_logs)
+
+
+#############################
+# get_gall_name()
+# 기능 : 갤러리 이름을 리턴한다 ex) 식물갤러리 -> "식물"
+def get_gall_name(soup):
+    gall_name = soup.select_one("div.page_head div.fl").get_text(strip=True)
+    pattern = r"(갤러리)[미니,마이너]*"
+    gall_name = re.sub(pattern, r"\1", gall_name)   # "갤러리" 이후의 부분을 없애준다
+    return gall_name.replace(" ", "")        # 공백 제거하고 리턴
 
 
 #############################
@@ -112,7 +146,7 @@ def get_search_result(soup, time_sleep=0):
 # get_max_content_num()
 # 기능 : 검색결과 중 가장 큰 글번호를 구하여 리턴한다
 # 리턴값 : max_content_num
-def get_max_content_num(soup):
+def get_max_number(soup):
     box = soup.select("div.gall_listwrap tr.ub-content")  # 글만 있는 box
     # 메이저 / 마이너&미니 갤러리는 max_content_num을 긁어올 부분이 다르다
     if box[0].find('td', class_='gall_subject'):
@@ -136,36 +170,65 @@ def get_max_content_num(soup):
 
 
 #####################################
-# get_new_row_from_search_result()
+# 목적 : title 텍스트를 전처리한다
+# 기능 : 끝에붙은 대괄호와 안의 숫자, 콤마 (","), "u\202c" 를 제거한다
+def preprocess_title(text):
+    # 바꿀 것들 리스트
+    replacements = {
+        "\u202c": "",
+        ',': ' '
+    }
+    for old, new in replacements.items():
+        text = text.replace(old, new)       # replacements의 전자를 후자로 교체함
+    result = re.sub(r'\[\d+\]$', '', text).strip()  # 뒤에 붙는 댓글수 [3]같은거 제거한다. + 공백제거
+    if len(result) == 0:
+        return "_"  # 널값이면 "_"을 리턴한다
+    else:
+        return result  # 전처리 결과값 리턴
+
+
+#####################################
+# get_url_row()
 # 기능 : 검색결과에서 글 하나의 정보를 리턴한다
-# 리턴값 : is_continue(이 정보가 불필요하면 True, 필요하면 False), new_row(글 하나의 정보)
-def get_new_row_from_search_result(element, gall_id, blacklist, whitelist, error_count=0):
-    new_row = []
-    is_continue = False     # is_continue가 True면 이 함수를 사용하는 반복문을 탈출하도록 할 것입니다
+# 리턴값 : is_ignore(정보가 불필요하면 True, 필요하면 False), new_row(글 하나의 정보)
+def get_url_row(element, search_info, blacklist, whitelist, max_retries=3):
+    # search_info = {"community": "community",  # 검색 정보/ 검색 조건.
+    #                "gall_id": "gall_id",
+    #                "search_keyword": "search_keyword"}
+    # blacklist = []
+    # whitelist=[]
+    new_row = ["", "", "", 0, "", "", "", "", "", 0]
+    is_ignore = False     # is_ignore이 True면, 이 함수를 사용하는 반복문을 탈출하도록 할 것입니다
     try:
-        if error_count >= 3:    # 3번 반복해도 실패하면 넘어가기
-            print("에러가 3번 발생해서 스킵합니다. 함수 : get_new_row_from_search_result()")
-            is_continue = True
-            return is_continue, new_row  # 넘어가기
-        if element.find('td', class_='gall_writer').get_text() == "운영자":  # 광고글은 글쓴이가 "운영자"
-            is_continue = True              # 페이지마다 광고글 처리하기
-            return is_continue, new_row     # 광고글은 넘어가기
-        date = element.find('td', class_='gall_date')['title'][:10]  # date 가져오기
-        title = element.find('td', class_='gall_tit ub-word').find('a').get_text(strip=True)  # title 가져오기
-        title = util.preprocess_title(title)  # 제목을 전처리하기
-        if util.contains_any_from_list(title, whitelist):       # whitelist에 해당하는 단어 발견
-            print("제목에 whitelist에 해당하는 단어 발견 : ", title)
-            pass    # whitellist의 단어가 있으면, 유의미한 정보이므로 수집한다
-        elif util.contains_any_from_list(title, blacklist):     # blacklist에 해당하는 단어 발견
-            print("제목에 blacklist에 해당하는 단어 발견 : ", title)
-            is_continue = True              # 제목에 blacklist의 단어가 있으면
-            return is_continue, new_row     # 무시하고 넘어가기
-        url = "https://gall.dcinside.com" + element.select_one("td.gall_tit a")['href']
-        new_row = [date, title, url, gall_id]
+        if max_retries <= 0:
+            print("[최대 재시도 횟수 초과 : get_url_row()]")
+            is_ignore = True
+            return is_ignore, new_row    # 스킵
+        author = element.find('td', class_='gall_writer').get_text().replace("\n", "")    # 글쓴이
+        # [광고글 ignore]
+        if author == "운영자":            # 광고글은 글쓴이가 "운영자"
+            is_ignore = True
+            return is_ignore, new_row    # 광고글 스킵
+        title = element.find('td', class_='gall_tit ub-word').find('a').get_text(strip=True)    # title
+        # [블랙리스트 ignore]
+        if util.contains_any_from_list(title, whitelist):     # whitelist에 해당하는 단어 발견
+            print("[WhiteList - 제목] : ", title)
+            pass    # 제목에 whitellist의 단어가 있으면, 수집한다
+        elif util.contains_any_from_list(title, blacklist):       # blacklist에 해당하는 단어 발견
+            print("[BlackList - 제목] : ", title)
+            is_ignore = True              # 제목에 blacklist의 단어가 있으면
+            return is_ignore, new_row     # 무시하고 넘어가기
+        number = int(element.find('td', class_='gall_num').get_text())                    # 글 번호
+        date_created = element.find('td', class_='gall_date')['title'][:10]               # 생성된 날짜
+        time_created = element.find('td', class_='gall_date')['title'][11:]               # 생성된 시각
+        url = "https://gall.dcinside.com" + element.select_one("td.gall_tit a")['href']   # 글 url
+        title = preprocess_title(title)                                                   # 글 제목
+        recommend = element.find('td', class_='gall_recommend').get_text()                # 추천수
+        new_row = [search_info["community"], search_info["gall_id"], search_info["search_keyword"], number, date_created, time_created, url, title, author, recommend]
     except Exception as e:
-        print("[오류 발생, 반복] [get_new_row_from_search_result()] ", e)
-        is_continue, new_row = get_new_row_from_search_result(element, gall_id, blacklist, whitelist, 1)
-    return is_continue, new_row
+        print("[오류 발생, 반복] [get_url_row()] ", e)
+        is_ignore, new_row = get_url_row(element, search_info, blacklist, whitelist, max_retries-1)
+    return is_ignore, new_row
 
 
 #####################################

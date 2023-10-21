@@ -4,12 +4,11 @@
 # 전제 : 실행하기 전에, Users 폴더에 chromedriver.exe를 현재 크롬 버전에 맞게 다운받아주세요
 # 기능 : dcinside 크롤링 실행 함수
 
-from dcinside_crawler import crawl_url, get_content_dc
-import utility_module as util
+from dcinside_crawler import crawl_url, crawl_text, merge_url_files
 #############################################################################
 #                                 << 설정값 >>
 keyword = "기아"       # 검색할 키워드
-gall_name = "코스피"    # 검색할 갤러리 선택하기
+gall_name = "캠퍼스개미"    # 검색할 갤러리 선택하기
 
 
 # 검색할 키워드(keyword)의 블랙리스트 : 목적에 맞지 않는 콘텐츠를 걸러내는 기능을 한다
@@ -40,7 +39,7 @@ blacklist = {
 # 검색할 키워드(keyword)의 화이트리스트 : whitelist의 단어가 있으면, 유의미한 정보로 판단한다. 블랙리스트의 단어가 포함될지라도.
 whitelist = {
     "엘앤에프": ["플레이"]
-    , "기아": ["기아차", "기아자동차", "현대기아"]
+    , "기아": ["기아차", "기아자동차", "현대"]
 }
 
 # [갤러리 목록] "____" 갤러리
@@ -69,17 +68,15 @@ gall_url = {
 
 ###############################################################################################################
 #                                            << 실행하는 곳 >>
-# whitelist 존재하지 않으면
-# get_url_dc(gall_url[gall_name], keyword, blacklist[keyword])        # [1. url 크롤링]
-# get_content_dc(gall_url[gall_name], keyword, blacklist[keyword])    # [2. content 크롤링]
+# [1. url 크롤링]
+crawl_url(gall_url[gall_name], keyword, blacklist[keyword])                        # [whitelist 존재하지 않을 때]
+# crawl_url(gall_url[gall_name], keyword, blacklist[keyword], whitelist[keyword])    # [whitelist 있을 때]
 
+# [2. content 크롤링]
+# crawl_text(gall_url[gall_name], keyword, blacklist[keyword])                       # [whitelist 존재하지 않을 때]
+# crawl_text(gall_url[gall_name], keyword, blacklist[keyword], whitelist[keyword])   # [whitelist 있을 때]
 
-# whitelist 있을 때
-# get_url_dc(gall_url[gall_name], keyword, blacklist[keyword], whitelist[keyword])        # [1. url 크롤링]
-get_content_dc(gall_url[gall_name], keyword, blacklist[keyword], whitelist[keyword])    # [2. content 크롤링]
+# [옵션 : 키워드 여러개로 검색하고, 파일 합치기]
+merge_url_files(f"merged_{keyword}", "./url/crawling_result")
 
 ###############################################################################################################
-#                                << 실험실 >>
-# folder_path = f"./url/{keyword}"
-# result_file_name = f"url_{keyword}_kakao"
-# util.combine_csv_file(folder_path, result_file_name)

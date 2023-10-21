@@ -2,9 +2,11 @@
 # Made by Hansol Lee
 # 20230927
 #############################
+from datetime import datetime
 import crawling_tool as cr
 import utility_module as util
 import pandas as pd
+import traceback
 
 
 ##############################################
@@ -13,61 +15,138 @@ import pandas as pd
 # 리턴 : x
 # 생성 파일 : url_dcinside_{gall_id}.csv
 # columns = ['date', 'title', 'url', 'media']
-@util.timer_decorator
 def crawl_url(gall_url, search_keyword, blacklist, whitelist=None):
-    # 0. 기본값 세팅 단계
+    # 0. 기본값 세팅
+    crawling_start_time = datetime.now().replace(microsecond=0)    # 시작 시각 : 실행 시간을 잴 때 사용
+    crawler_type = "url_crawler"    # 크롤러 타입
+    community = "dcinside"          # 커뮤니티 이름
+    black_count = 0                 # blacklist로 걸러진 글의 수
+    # [default값 설정]
+    url_rows, error_logs = [], []
+    gall_name = ""
+    error_log_file_path = f"./url/error_log/url_error_log_{search_keyword}_기본값세팅에러.csv"
+    if whitelist is None:
+        whitelist = []
     try:
-        community = "dcinside"
-        gall_id = cr.get_gall_id(gall_url)                   # 갤러리 id
-        if whitelist is None:
-            whitelist = []
-        soup = cr.get_soup_from_url(gall_url)
-        keyword_unicode = util.convert_to_unicode(search_keyword)   # 입력받은 키워드를 유니코드로 변환한다
-        print("gall_id : ", gall_id)
-        url_base = cr.get_url_base(gall_url)  # "https" 부터 "board/" 이전까지의 url 부분 (major갤, minor갤, mini갤)
-        print("url_base : ", url_base)
-        max_content_num = cr.get_max_content_num(soup)   # 검색결과 중, 가장 큰 글번호 10000단위로 올림한 값/10000
-        print("max_num : ", max_content_num)
-        folder_path = f"./url/{search_keyword}"        # 저장할 폴더 경로 설정
-        util.create_folder(folder_path)         # 폴더 만들기
-        error_log = []                          # 에러 로그 저장
-        sub_df_data = []                          # 데이터 리스트 ['date', 'title', 'url', 'media']
-        file_name = f"url_{search_keyword}_{gall_id}"            # 저장할 파일 이름
+        soup = cr.get_soup(gall_url)   # soup 설정
+        gall_id = cr.get_gall_id(gall_url)      # 갤러리 id
+        gall_name = cr.get_gall_name(soup)      # 갤러리 이름
+        max_number = cr.get_max_number(soup)    # 검색결과 중, 가장 큰 글번호 10000단위로 올림한 값/10000
+        url_base = cr.get_url_base(gall_url)     # url에서 "https" 부터 "board/" 이전까지의 부분 (major갤, minor갤, mini갤)
+        search_keyword_unicode = util.convert_to_unicode(search_keyword)   # search_keyword를 유니코드로 변환
+        search_info = {"community": community,              # 검색 정보/ 검색 조건.
+                       "gall_id": gall_id,
+                       "search_keyword": search_keyword}
+        util.create_folder(f"./url/crawling_result")    # 폴더 만들기 : crawling_result
+        util.create_folder(f"./url/crawling_log")       # 폴더 만들기 : crawling_log
+        util.create_folder(f"./url/error_log")          # 폴더 만들기 : error_log
+        crawling_result_file_path = f"./url/crawling_result/url_crawling_result_{search_keyword}_{gall_name}.csv"  # 크롤링 결과 파일 이름
+        crawling_log_file_path = f"./url/crawling_log/url_crawling_log_{search_keyword}_{gall_name}.csv"           # 크롤링 로그 파일 이름
+        error_log_file_path = f"./url/error_log/url_error_log_{search_keyword}_{gall_name}.csv"                    # 에러 로그 파일 이름
     except Exception as e:
-        print("[기본값 세팅 단계에서 error가 발생함] ", e)
-        print("[get_url_dcinside() 종료]")
-        return 0
+        print("[에러 발생 : 0. 기본값 세팅]", e)
+        error_info = traceback.format_exc()
+        error_logs.append([crawler_type, community, gall_name, search_keyword, error_info])
+        cr.check_error_logs(error_logs, error_log_file_path)
+        return
 
     # 1. url 크롤링
-    for search_pos in range(max_content_num, 0, -10000):
-        temp_url = f"{url_base}/board/lists/?id={gall_id}&page=1&search_pos=-{search_pos}&s_type=search_subject_memo&s_keyword={keyword_unicode}"
-        print(f"[{search_keyword}의 검색 결과 / 범위 : {search_pos}~{search_pos-10000}] {temp_url}")
-        temp_soup = cr.get_soup_from_url(temp_url)  # soup 받아오기
-        last_page = cr.get_last_page(temp_soup)     # 1만 단위 검색결과의 마지막 페이지
-        # 페이지 넘기면서 크롤링
-        for page in range(1, last_page+1):
-            # [검색결과 페이지 불러오기]
-            search_url = f"{url_base}/board/lists/?id={gall_id}&page={page}&search_pos=-{search_pos}&s_type=search_subject_memo&s_keyword={keyword_unicode}"
-            search_soup = cr.get_soup_from_url(search_url)
-            element_list = cr.get_search_result(search_soup)
-            # 글 하나씩 뽑아서 크롤링
-            for element in element_list:    # element는 글 하나
-                # [검색결과에서 글 하나씩 크롤링]
-                is_contine, new_row = cr.get_new_row_from_search_result(element, gall_id, blacklist, whitelist)
-                if is_contine:  # 광고글이거나, 제목에 블랙리스트에 있는 단어가 있으면
-                    continue    # 다음 element로 넘어간다
-                else:                           # 정상적이면
-                    sub_df_data.append(new_row)   # sub_df_data에 크롤링한 정보 저장
-                print(f"[{search_pos} {page}/{last_page}] new_row : {new_row}")
+    for search_pos in range(max_number, 0, -10000):
+        # [1만 단위 검색결과의 last_page 받아오기]
+        last_page = 1
+        try:
+            temp_url = f"{url_base}/board/lists/?id={gall_id}&page=1&search_pos=-{search_pos}&s_type=search_subject_memo&s_keyword={search_keyword_unicode}"
+            print(f"[{search_keyword}의 검색 결과 / 범위 : {search_pos}~{search_pos-10000}] {temp_url}")
+            temp_soup = cr.get_soup(temp_url)           # soup 받아오기
+            last_page = cr.get_last_page(temp_soup)     # 1만 단위 검색결과의 마지막 페이지
+        except Exception as e:
+            print("[에러 발생 : 글 한 개씩 정보 가져오기]", e)
+            error_info = traceback.format_exc()
+            error_logs.append([crawler_type, community, gall_name, search_keyword, error_info])
+        # [페이지 넘기면서 크롤링]
+        for page in range(1, last_page+1):          # page = 1만 단위 검색결과 페이지
+            element_list = []
+            # [1만 단위 검색결과 페이지]
+            try:
+                search_result_url = f"{url_base}/board/lists/?id={gall_id}&page={page}&search_pos=-{search_pos}&s_type=search_subject_memo&s_keyword={search_keyword_unicode}"
+                search_soup = cr.get_soup(search_result_url)        # soup (1만 단위 검색결과)
+                element_list = cr.get_search_result(search_soup)    # element = 1줄 (글 한 개)
+            except Exception as e:
+                print("[에러 발생 : 글 한 개씩 정보 가져오기]", e)
+                error_info = traceback.format_exc()
+                error_logs.append([crawler_type, community, gall_name, search_keyword, error_info])
+            # [글 한 개씩 정보 가져오기]
+            for element in element_list:
+                try:
+                    is_ignore, new_row = cr.get_url_row(element, search_info, blacklist, whitelist)
+                    if is_ignore:    # blacklist의 단어가 있거나, 광고or공지 글이면
+                        black_count += 1
+                        continue     # 다음 element로 넘어간다
+                    else:                          # 정상적이면
+                        url_rows.append(new_row)   # df_data에 크롤링한 정보 저장
+                    print(f"[{search_pos} {page}/{last_page}] new_row : {new_row}")
+                except Exception as e:
+                    print("[에러 발생 : 글 한 개씩 정보 가져오기]", e)
+                    error_info = traceback.format_exc()
+                    error_logs.append([crawler_type, community, gall_name, search_keyword, error_info])
 
-    # 2. 파일로 저장
-    print(f"[저장된 url 정보 개수] {len(sub_df_data)}개")
-    print(f"[갤러리 주소] {gall_url}")
-    df_result = pd.DataFrame(sub_df_data, columns=['date', 'title', 'url', 'media'])
-    util.save_csv_file(df_result, f"{file_name}.csv", folder_path)
+    crawling_end_time = datetime.now().replace(microsecond=0)                              # 종료 시각 : 실행 시간을 잴 때 사용
+    crawling_duration = round((crawling_end_time - crawling_start_time).total_seconds())     # 실행 시간 : 크롤링에 걸린 시간
+    error_count = len(error_logs)                                    # 에러가 발생한 횟수
+    row_count = len(url_rows)                                    # 크롤링된 row 개수
 
-    # 3. 에러로그확인
-    util.error_check(error_log, file_name, folder_path)
+    # 2. url 크롤링 결과 저장 : .csv 파일
+    print(f"[{gall_name} : '{search_keyword}' 크롤링 결과]")
+    print(f"[걸린 시간] {crawling_duration} 초")
+    print(f"[모은 정보] {row_count} 개")
+    url_columns = ['community', 'gall_id', 'search_keyword', 'number', 'date', 'time_', 'url', 'title', 'author', 'recommend']
+    df_crawling_result = pd.DataFrame(url_rows, columns=url_columns)
+    df_crawling_result.to_csv(crawling_result_file_path, encoding='utf-8', index=False)  # df의 내용을 csv 형식으로 저장합니다
+
+    # 3. 크롤링 로그 저장 : .csv 파일
+    crawling_log_row = [[crawler_type, community, gall_id, gall_name, gall_url, search_keyword,
+                         blacklist, whitelist, crawling_start_time, crawling_end_time,
+                         black_count, error_count, row_count, crawling_duration
+                         ]]
+    crawling_log_columns = ['crawler_type', 'community', 'gall_id', 'gall_name', 'gall_url', 'search_keyword',
+                            'blacklist', 'whitelist', 'crawling_start_time', 'crawling_end_time',
+                            'black_count', 'error_count', 'row_count', 'crawling_duration']
+
+    df_crawling_log = pd.DataFrame(crawling_log_row, columns=crawling_log_columns)
+    df_crawling_log.to_csv(crawling_log_file_path, encoding='utf-8', index=False)  # df의 내용을 csv 형식으로 저장합니다
+
+    # 4. 에러로그확인
+    cr.check_error_logs(error_logs, error_log_file_path)
+    print("crawl_url() 함수가 정상적으로 종료되었습니다")
+    return
+
+
+#####################################
+# merge_url_files()
+# 기능 : 2개 이상의 키워드로 crawl_url()한 url 파일들을 중복제거하여 하나로 합친다
+def merge_url_files(result_file_name, folder_path_='./'):
+    dataframes = []     # df들을 저장할 리스트
+
+    # 1. 폴더 내의 파일을 검색한다
+    csv_file_paths = util.read_file_paths(folder_path_, endswith='.csv')  # 폴더 내의 .csv로 끝나는 파일들 전부 검색
+    print(f'[{len(csv_file_paths)}개의 파일을 합치겠습니다]')
+    for csv_file_path in csv_file_paths:
+        print(csv_file_path)            # 합쳐질 파일들 이름 출력
+
+    # 2. df 합치기
+    for csv_file_path in csv_file_paths:
+        df_content = pd.read_csv(f"{folder_path_}/{csv_file_path}", encoding='utf-8')
+        dataframes.append(df_content)
+    merged_df = pd.concat(dataframes, ignore_index=True)    # 여러 개의 데이터프레임을 하나로 합침
+    merged_df_unique = merged_df.drop_duplicates(subset='number', keep='first')     # 'number' 칼럼에서 중복된 행을 제거 (첫 번째 행만 남김)
+
+    print(merged_df.tail())
+
+    # 3. df를 csv로 만든다
+    result_folder_path = util.create_folder(f"{folder_path_}/{result_file_name}")
+    merged_df.to_csv(f"{result_folder_path}/{result_file_name}.csv", encoding='utf-8', index=False)
+    print(f"[{len(csv_file_paths)}개의 파일을 {result_file_name}.csv 파일로 합쳤습니다]")
+    print(f"총 데이터 개수 : {len(merged_df)}개")
 
 
 #####################################
@@ -89,14 +168,17 @@ def crawl_url(gall_url, search_keyword, blacklist, whitelist=None):
 # 5) 에러로그 체크 및 저장
 #################################
 @util.timer_decorator
-def get_content_dc(gall_url, keyword, blacklist, whitelist=None, chunk_size=1000):
+def crawl_text(gall_url, keyword, blacklist, whitelist=None, chunk_size=1000):
+    crawling_start_time = datetime.now()    # 실행 시간을 잴 때 사용
+    crawler_type = "url_crawler"
+    community = "dcinside"              # 커뮤니티
     if whitelist is None:
         whitelist = []
     gall_id = cr.get_gall_id(gall_url)              # 갤 id
     url_folder_path = f"./url/{keyword}"            # 읽어올 url 폴더 경로 설정
     content_folder_path = f"./content/{keyword}"    # 저장할 content 폴더 경로 설정
     util.create_folder(content_folder_path)         # 저장할 content 폴더 만들기
-    error_log = []                                  # 에러 로그 저장 [’error’]
+    error_log = []                                  # 에러 로그 저장
     url_file_name = f"url_{keyword}_{gall_id}"      # url csv 파일 이름
     content_file_name = f"content_{keyword}_{gall_id}"        # content 파일 이름
     done_index = util.get_last_number_in_folder(content_folder_path)    # 마지막 파일 번호
@@ -115,7 +197,7 @@ def get_content_dc(gall_url, keyword, blacklist, whitelist=None, chunk_size=1000
             title = url_row['title']
             url = url_row['url']
             print(f"[{sub_df_index * chunk_size + index + 1}/{row_count}] 본문 페이지 : {url}")
-            soup = cr.get_soup_from_url(url)    # url을 Beatifulsoup를 사용하여 읽어온다
+            soup = cr.get_soup(url)    # url을 Beatifulsoup를 사용하여 읽어온다
             if cr.is_deleted_page(soup):        # 글이 삭제되었는지 검사
                 continue    # 글이 삭제되었으면, 다음 row로 넘어갑니다
             # {step 1} 본문 정보 row를 sub_df_data에 추가
@@ -172,9 +254,12 @@ def get_content_dc(gall_url, keyword, blacklist, whitelist=None, chunk_size=1000
     # sub_dfs를 합친다
     util.combine_csv_file(content_file_name, content_folder_path)
 
+    crawling_end_time = datetime.now()
+    crawling_duration = crawling_end_time - crawling_start_time
+
     # 에러 로그 체크, 저장
     try:
-        util.error_check(error_log, content_file_name, content_folder_path)
+        cr.check_error_logs(error_log, "", content_folder_path)
     except Exception as e:
         print('[에러 발생. status : 에러 로그 체크] ', e)
 
