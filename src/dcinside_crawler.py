@@ -140,13 +140,13 @@ def merge_url_files(result_file_name, folder_path_='./'):
     merged_df = pd.concat(dataframes, ignore_index=True)    # 여러 개의 데이터프레임을 하나로 합침
     merged_df_unique = merged_df.drop_duplicates(subset='number', keep='first')     # 'number' 칼럼에서 중복된 행을 제거 (첫 번째 행만 남김)
 
-    print(merged_df.tail())
+    print(merged_df_unique.tail())
 
     # 3. df를 csv로 만든다
     result_folder_path = util.create_folder(f"{folder_path_}/{result_file_name}")
-    merged_df.to_csv(f"{result_folder_path}/{result_file_name}.csv", encoding='utf-8', index=False)
+    merged_df_unique.to_csv(f"{result_folder_path}/{result_file_name}.csv", encoding='utf-8', index=False)
     print(f"[{len(csv_file_paths)}개의 파일을 {result_file_name}.csv 파일로 합쳤습니다]")
-    print(f"총 데이터 개수 : {len(merged_df)}개")
+    print(f"총 데이터 개수 : {len(merged_df_unique)}개")
 
 
 #####################################

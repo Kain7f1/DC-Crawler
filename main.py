@@ -7,7 +7,7 @@
 from dcinside_crawler import crawl_url, crawl_text, merge_url_files
 #############################################################################
 #                                 << 설정값 >>
-keyword = "기아"       # 검색할 키워드
+keyword = "에코"       # 검색할 키워드
 gall_name = "캠퍼스개미"    # 검색할 갤러리 선택하기
 
 
@@ -69,7 +69,7 @@ gall_url = {
 ###############################################################################################################
 #                                            << 실행하는 곳 >>
 # [1. url 크롤링]
-crawl_url(gall_url[gall_name], keyword, blacklist[keyword])                        # [whitelist 존재하지 않을 때]
+# crawl_url(gall_url[gall_name], keyword, blacklist[keyword])                        # [whitelist 존재하지 않을 때]
 # crawl_url(gall_url[gall_name], keyword, blacklist[keyword], whitelist[keyword])    # [whitelist 있을 때]
 
 # [2. content 크롤링]
