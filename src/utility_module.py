@@ -48,23 +48,6 @@ def read_file_paths(folder_path_='./', endswith='.csv'):
 
 
 #####################################
-# 기능 : 폴더 내 마지막 파일의 숫자를 가져오는 함수
-def get_last_number_in_folder(folder_path_='./'):
-    file_name_list = read_file_paths(folder_path_, endswith='.csv')  # 폴더 내 파일들 이름 읽어온다
-    if len(file_name_list) == 0:    # 폴더 내에 endswith='.csv'인 파일이 없으면
-        print('[폴더 내에 파일이 없습니다 : get_last_number_in_folder()]')
-        return -1
-    last_file_name = file_name_list[-1]   # 마지막 파일 이름
-    print("last_file_name", last_file_name)
-    match = re.findall(r'\d+', last_file_name)
-    if match:
-        return int(match[-1])
-    else:                        # 마지막 파일 이름에 숫자가 없으면
-        print('[마지막 파일 이름에 숫자가 없습니다 : get_last_number_in_folder()]')
-        return -1
-
-
-#####################################
 # merge_csv_files()
 # 기능 : .csv 파일들을 하나로 합친다
 def merge_csv_files(save_file_name, read_folder_path_='./', save_folder_path_='./', subset=None):
