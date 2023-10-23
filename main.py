@@ -6,34 +6,12 @@
 
 from dcinside_crawler import crawl_url, crawl_text
 import utility_module as util
-#############################################################################
-#                                 << 설정값 >>
-keyword = "에코"       # 검색할 키워드
-gall_name = "나스닥"    # 검색할 갤러리 선택하기
-
 
 # 검색할 키워드(keyword)의 블랙리스트 : 목적에 맞지 않는 콘텐츠를 걸러내는 기능을 한다
 blacklist = {
-    "에코프로": ["http"]
-    , "에코": ["http", "에코백", "에코페", "에코팰", "에코플", "에코마", "에코디", "에코랜", "에코스", "에코하", "아마존 에코"]  # 에코프로
+    "에코": ["http", "에코백", "에코페", "에코팰", "에코플", "에코마", "에코디", "에코랜", "에코스", "에코하", "아마존 에코"]  # 에코프로
     , "금양": ["http", "황금양", "금양말", "조금양", "지금양", "방금양", "금양전", "세금양"]
-    , "피엔티": ["http"]
-    , "엘앤에프": ["http", "하반기"]
-    , "lg화학": ["http"]
-    , "두산퓨얼셀": ["http"]  # 두산퓨얼셀
-
-    , "에스엠": ["http"]
-    , "하이브": ["http"]
-    , "카카오": ["http"]
-
-    , "코스맥스": ["http"]
-    , "아모레": ["http"]
-    , "채권 패닉": ["http"]  # 한국콜마
-    , "휴젤": ["http"]
-
-    , "현대차": ["http"]   # 제안 : 현대자동차도 검색?
     , "기아": ["http", "기아니", "기아님", "기아닐", "기아닌", "기아이", "기아녀", "기아파트", "기아들", "급기아", "새기아", "사기아", "얘기아", "전기아", "광기아", "러기아", "자기아빠", "자기아들", "자기아는", "장기아프"]
-
     , "토스": ["http", "토스트", "도리토스", "치토스", "멘토스", "셀토스", "키보토스", "프로토스", "테스토스", "토스테론"]
 }
 
@@ -67,17 +45,34 @@ gall_url = {
     , "편의점": "https://gall.dcinside.com/board/lists/?id=cs_new1"
 }
 
+#############################################################################
+#                                 << 설정값 >>
+keyword = "감기"       # 검색할 키워드
+gall_name = "나스닥"    # 검색할 갤러리 선택하기
+
+try:
+    whitelist_ = whitelist[keyword]     # whitelist 설정
+except Exception:
+    whitelist_ = None        # whitelist 디폴트 값
+try:
+    blacklist_ = blacklist[keyword]     # blacklist 설정
+except Exception:
+    blacklist_ = ["http"]    # blacklist 디폴트 값
 ###############################################################################################################
 #                                            << 실행하는 곳 >>
-# [whitelist 존재하지 않을 때]
-# crawl_url(gall_url[gall_name], keyword, blacklist[keyword])                        # [1. url 크롤링]
-crawl_text(gall_url[gall_name], keyword, blacklist[keyword])                       # [2. text 크롤링]
-#
-# [whitelist 있을 때]
-# crawl_url(gall_url[gall_name], keyword, blacklist[keyword], whitelist[keyword])    # [1. url 크롤링]
-# crawl_text(gall_url[gall_name], keyword, blacklist[keyword], whitelist[keyword])   # [2. text 크롤링]
+# crawl_url(gall_url[gall_name], keyword, blacklist_, whitelist_)    # [1. url 크롤링]
+# crawl_text(gall_url[gall_name], keyword, blacklist_, whitelist_)   # [2. text 크롤링]
 
-# [옵션 : 키워드 여러개로 검색하고, 파일 합치기]
+###############################################################################################################
+
+# [옵션 : 키워드 여러개로 검색하고, 파일 합치기] ["./url/crawling_result" 의 폴더 내 파일 전부 합침]
 # util.merge_csv_files(save_file_name=f"merged_{keyword}", read_folder_path_="./url/crawling_result", save_folder_path_="./url/merged_files", subset='number')
 
+# [옵션 : 갤러리 이름을 list로 받아서 크롤링]
+keyword = "감자"       # 검색할 키워드
+gall_name_list = ["해외선물실투", "에너지주식"]
+for gall_name in gall_name_list:
+    crawl_url(gall_url[gall_name], keyword, blacklist_, whitelist_)    # [1. url 크롤링]
+    crawl_text(gall_url[gall_name], keyword, blacklist_, whitelist_)   # [2. text 크롤링]
+    print(f"[크롤링 종료] {gall_name} 갤러리")
 ###############################################################################################################
