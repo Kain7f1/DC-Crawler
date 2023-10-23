@@ -9,13 +9,13 @@ import utility_module as util
 #############################################################################
 #                                 << 설정값 >>
 keyword = "에코"       # 검색할 키워드
-gall_name = "캠퍼스개미"    # 검색할 갤러리 선택하기
+gall_name = "나스닥"    # 검색할 갤러리 선택하기
 
 
 # 검색할 키워드(keyword)의 블랙리스트 : 목적에 맞지 않는 콘텐츠를 걸러내는 기능을 한다
 blacklist = {
     "에코프로": ["http"]
-    , "에코": ["http", "에코백", "에코페", "에코팰", "에코플", "에코마", "에코디", "에코랜", "에코스", "에코하", "아마존 에코"] # 에코프로
+    , "에코": ["http", "에코백", "에코페", "에코팰", "에코플", "에코마", "에코디", "에코랜", "에코스", "에코하", "아마존 에코"]  # 에코프로
     , "금양": ["http", "황금양", "금양말", "조금양", "지금양", "방금양", "금양전", "세금양"]
     , "피엔티": ["http"]
     , "엘앤에프": ["http", "하반기"]
@@ -28,7 +28,7 @@ blacklist = {
 
     , "코스맥스": ["http"]
     , "아모레": ["http"]
-    , "콜마": ["http"]  # 한국콜마
+    , "채권 패닉": ["http"]  # 한국콜마
     , "휴젤": ["http"]
 
     , "현대차": ["http"]   # 제안 : 현대자동차도 검색?
@@ -72,7 +72,7 @@ gall_url = {
 # [whitelist 존재하지 않을 때]
 # crawl_url(gall_url[gall_name], keyword, blacklist[keyword])                        # [1. url 크롤링]
 crawl_text(gall_url[gall_name], keyword, blacklist[keyword])                       # [2. text 크롤링]
-
+#
 # [whitelist 있을 때]
 # crawl_url(gall_url[gall_name], keyword, blacklist[keyword], whitelist[keyword])    # [1. url 크롤링]
 # crawl_text(gall_url[gall_name], keyword, blacklist[keyword], whitelist[keyword])   # [2. text 크롤링]

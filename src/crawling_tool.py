@@ -201,7 +201,7 @@ def get_url_row(element, search_info, blacklist, whitelist, max_retries=3):
             print("[최대 재시도 횟수 초과 : get_url_row()]")
             is_ignore = True
             return new_row, is_ignore, is_black    # 스킵
-        author = element.find('td', class_='gall_writer').get_text().replace("\n", "")    # 글쓴이
+        author = element.find('td', class_='gall_writer').get_text().replace("\n", "").strip()    # 글쓴이
         # [광고글 ignore]
         if author == "운영자":            # 광고글은 글쓴이가 "운영자"
             is_ignore = True
@@ -277,7 +277,7 @@ def get_reply_row(url_row, reply, max_retries=3):
         date_created, time_created = get_reply_date(reply)
         text = reply.find("p", {"class": "usertxt ub-word"}).text  # 댓글 내용 추출
         text = util.preprocess_text_dc(text)  # 전처리
-        author = reply.select_one("span.nickname").get_text()
+        author = reply.select_one("span.nickname").get_text().strip()
         # [크롤링한 정보를 new_row에 저장한다]
         new_row = [url_row['community'], url_row['gall_id'], url_row['search_keyword'], url_row['number'],
                    date_created, time_created, author, is_reply, text]
