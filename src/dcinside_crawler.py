@@ -120,8 +120,7 @@ def crawl_url(gall_url, search_keyword, blacklist, whitelist=None):
 
 #####################################
 # 기능 : dcinside 글 url을 타고 들어가서 본문과 댓글 정보를 수집한다
-@util.timer_decorator
-def crawl_text(gall_url, search_keyword, blacklist, whitelist=None, chunk_size=1):
+def crawl_text(gall_url, search_keyword, blacklist, whitelist=None, chunk_size=100):
     # 0. 기본값 세팅
     crawling_start_time = datetime.now().replace(microsecond=0)  # 시작 시각 : 실행 시간을 잴 때 사용
     crawler_type = "text_crawler"  # 크롤러 타입
@@ -149,7 +148,7 @@ def crawl_text(gall_url, search_keyword, blacklist, whitelist=None, chunk_size=1
             return
         url_file_path = f"./url/crawling_result/" + url_file_path
         done_index = cr.get_done_index(f"{search_keyword}_{gall_name}", f"./text/temp_crawling_result")    # 작업했던 마지막 파일의 번호
-        crawling_result_folder_name = \
+        crawling_result_file_name = \
             f"text_crawling_result_{search_keyword}_{gall_name}"  # 크롤링 결과 파일 이름
         crawling_log_file_path = \
             f"./text/crawling_log/text_crawling_log_{search_keyword}_{gall_name}_{str_start_time}.csv"  # 크롤링 로그
@@ -162,10 +161,10 @@ def crawl_text(gall_url, search_keyword, blacklist, whitelist=None, chunk_size=1
         cr.check_error_logs(error_logs, error_log_file_path)
         return
 
-    # 1) url.csv 파일 정보를 읽어옴
+    # 1. url.csv 파일 정보를 읽어와서, 크롤링
     df_url = pd.read_csv(url_file_path, encoding='utf-8')
-    row_count = len(df_url)     # url csv 파일 데이터 개수
-    print(f"[df_url을 불러왔습니다. 데이터 수 : {row_count}]")
+    url_row_count = len(df_url)     # url csv 파일 데이터 개수
+    print(f"[df_url을 불러왔습니다. 데이터 수 : {url_row_count}]")
     sub_dfs = util.split_df_into_sub_dfs(df_url, chunk_size=chunk_size)     # df를 chunk_size 단위로 쪼갬
     print(f"[데이터를 sub_df 단위로 쪼갰습니다. sub_df의 수 : {len(sub_dfs)}]")
     for sub_df_index in range(len(sub_dfs)):
@@ -176,13 +175,12 @@ def crawl_text(gall_url, search_keyword, blacklist, whitelist=None, chunk_size=1
         sub_df_data = []                # 데이터를 저장할 공간 : sub_df_data
         for index, url_row in sub_df.iterrows():
             # [sub_df에서, url_row 1개씩 읽어온다]
-            print(f"[{sub_df_index * chunk_size + index + 1}/{row_count}] 본문 페이지 : {url_row['url']}")
+            print(f"[{sub_df_index * chunk_size + index + 1}/{url_row_count}] 본문 페이지 : {url_row['url']}")
             soup = cr.get_soup(url_row['url'])    # url을 Beatifulsoup를 사용하여 읽어온다
             if cr.is_deleted_page(soup):          # 글이 삭제되었는지 검사
                 continue                          # 글이 삭제되었으면, 다음 row로 넘어갑니다
-
             print("{step 1} 본문 정보를 추가하겠습니다")
-            new_row, is_ignore, is_black = cr.get_post_row(url_row, soup, blacklist, whitelist)
+            new_row, is_ignore, is_black = cr.get_post_row(url_row, soup, blacklist, whitelist)  # 본문 정보 크롤링
             if is_ignore:
                 print("{end} 무의미한 정보는 수집하지 않습니다 ")
                 if is_black:    # blacklist로 걸러지면 black_count +1
@@ -235,14 +233,18 @@ def crawl_text(gall_url, search_keyword, blacklist, whitelist=None, chunk_size=1
             cr.check_error_logs(error_logs, error_log_file_path)
 
     # [임시 파일을 합쳐서 저장한다]
-    util.merge_csv_files(crawling_result_folder_name,
-                         "./text/temp_crawling_result", "./text/crawling_result")
+    print(f"임시파일을 {crawling_result_file_name}로 합치겠습니다")
+    util.merge_csv_files(save_file_name=crawling_result_file_name, read_folder_path_="./text/temp_crawling_result",
+                         save_folder_path_="./text/crawling_result", keyword=f"{search_keyword}_{gall_name}")
     crawling_end_time = datetime.now().replace(microsecond=0)                              # 종료 시각 : 실행 시간을 잴 때 사용
     crawling_duration = round((crawling_end_time - crawling_start_time).total_seconds())     # 실행 시간 : 크롤링에 걸린 시간
     error_count = len(error_logs)  # 에러가 발생한 횟수
+    # 임시파일 합쳤으면, 임시파일을 삭제한다
+    util.delete_files(folder_path="./text/temp_crawling_result", keyword=f"{search_keyword}_{gall_name}")
+
     # [합친 파일을 불러온다]
-    crawling_result_file_path = util.find_file(f"{search_keyword}_{gall_name}", crawling_result_folder_name)
-    df_crawling_result = pd.read_csv(f"./text/crawling_result/{crawling_result_file_path}", encoding='utf-8')
+    crawling_result_file = util.find_file(f"{search_keyword}_{gall_name}", "./text/crawling_result")
+    df_crawling_result = pd.read_csv(f"./text/crawling_result/{crawling_result_file}", encoding='utf-8')
     row_count = len(df_crawling_result)  # 크롤링된 row 개수
 
     print(f"[{gall_name} : '{search_keyword}' 크롤링 결과]")

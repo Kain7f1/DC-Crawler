@@ -4,6 +4,7 @@ import re
 import time
 from datetime import datetime
 
+
 #####################################
 # 기능 : 함수의 실행 시간을 재는 데코레이터
 # 사용법 : @util.timer_decorator 를 함수 정의할 때 함수명 윗줄에 적는다
@@ -32,32 +33,36 @@ def create_folder(folder_path_='./'):
 
 
 #####################################
-# read_file_paths()
+# read_files()
 # 입력값 : folder_path_, endswith (파일이름의 검색조건 : 파일명의 끝)
 # 기능 : 폴더 내의 파일들 이름을 읽어서, 파일 이름들 리스트를 가져오는 함수
-def read_file_paths(folder_path_='./', endswith='.csv'):
-    file_paths = []
+def read_files(folder_path_='./', keyword=None, endswith='.csv'):
+    file_list = []
     print(f"[{folder_path_} 내의 파일을 탐색합니다. 검색조건 : endswith={endswith}]")
-    for file_path in os.listdir(folder_path_):      # 폴더 내의 모든 파일을 검색한다
-        if file_path.endswith(endswith):    # endswith 조건에 부합하면
-            file_paths.append(file_path)    # file_paths 에 추가한다
-    for index, file_path in enumerate(file_paths):
-        print(f"* File {index+1} * {file_path}")            # 검색한 파일 경로를 출력한다.
+    for target_file in os.listdir(folder_path_):      # 폴더 내의 모든 파일을 검색한다
+        if target_file.endswith(endswith):    # endswith 조건에 부합하면
+            if keyword is None:     # 키워드 조건이 없으면
+                file_list.append(target_file)    # file_paths 에 추가한다
+            else:    # 키워드 조건이 있으면
+                if keyword in target_file:
+                    file_list.append(target_file)  # file_paths 에 추가한다
+    for index, found_file in enumerate(file_list):
+        print(f"* File {index+1} * {found_file}")            # 검색한 파일 경로를 출력한다.
 
-    return file_paths
+    return file_list
 
 
 #####################################
 # merge_csv_files()
 # 기능 : .csv 파일들을 하나로 합친다
-def merge_csv_files(save_file_name, read_folder_path_='./', save_folder_path_='./', subset=None):
+def merge_csv_files(save_file_name, read_folder_path_='./', save_folder_path_='./', keyword=None, subset=None):
     create_folder(save_folder_path_)
     start_time = datetime.now().replace(microsecond=0)
     str_start_time = str(start_time)[2:10].replace("-", "") + "_" + str(start_time)[11:].replace(":", "")
     dataframes = []     # df들을 저장할 리스트
 
     # 1. 폴더 내의 파일을 검색한다
-    csv_file_paths = read_file_paths(read_folder_path_, endswith='.csv')  # 폴더 내의 .csv로 끝나는 파일들 전부 검색
+    csv_file_paths = read_files(read_folder_path_, keyword=keyword, endswith='.csv')  # 폴더 내의 .csv로 끝나는 파일들 전부 검색
     print(f'[{len(csv_file_paths)}개의 파일을 합치겠습니다]')
     for csv_file_path in csv_file_paths:
         print(csv_file_path)            # 합쳐질 파일들 이름 출력
@@ -77,6 +82,18 @@ def merge_csv_files(save_file_name, read_folder_path_='./', save_folder_path_='.
     print(f"[{len(csv_file_paths)}개의 파일을 {save_file_name}.csv 파일로 합쳤습니다]")
     print(f"총 데이터 개수 : {len(merged_df)}개")
 
+
+####################################
+# 기능 : keyword 조건에 맞는 폴더 내 파일들을 삭제한다
+def delete_files(folder_path, keyword=None):
+    file_list = read_files(folder_path, keyword=keyword)
+    for file_name in file_list:
+        file_path = os.path.join(folder_path, file_name)
+        if os.path.exists(file_path):
+            os.remove(file_path)
+            print(f"[파일을 삭제하였습니다] {file_path}")
+        else:
+            print(f"File not found: {file_path}")
 
 #####################################
 # 전처리 함수 : dcinside
@@ -157,14 +174,20 @@ def split_df_into_sub_dfs(df, chunk_size=1000):
 ########################################
 # find_file()
 # 기능 : 키워드를 조건으로, 폴더 내의 파일을 1개 찾아내어 리턴
+# 리턴값 : 예를들어 "text_기아_캠퍼스개미갤러리.csv" 라는 문자열을 리턴한다
 def find_file(keyword,  folder_path_='./'):
-    file_paths = read_file_paths(folder_path_)
-    for file_path in file_paths:
-        if keyword in file_path and file_path.endswith('.csv'):
-            print(f"[파일을 발견하였습니다] {file_path}")
-            return file_path
-    print("[파일을 발견하지 못했습니다]")
-    return None
+    read_file_list = read_files(folder_path_, keyword=keyword)
+    file_list = []
+    for target_file in read_file_list:
+        if keyword in target_file and target_file.endswith('.csv'):
+            file_list.append(target_file)
+    if len(file_list) == 0:
+        print("[파일을 발견하지 못했습니다]")
+        return None
+    else:
+        found_file = file_list[-1]
+        print(f"[파일을 발견하였습니다] {found_file}")
+        return found_file
 
 
 #########################################################################################################
