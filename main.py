@@ -47,9 +47,10 @@ gall_url = {
 
 #############################################################################
 #                                 << 설정값 >>
-keyword = "감기"       # 검색할 키워드
-gall_name = "나스닥"    # 검색할 갤러리 선택하기
-
+keyword = "기아"       # 검색할 키워드
+gall_name = ""    # 검색할 갤러리 선택하기
+gall_name_list = ["코스피", "실전주식투자", "미국주식", "해외주식", "부동산", "재테크",
+                  "슨피", "다우", "나스닥", "증권", "금융", "해외선물", "해외선물실투", "국내선물옵션"]
 try:
     whitelist_ = whitelist[keyword]     # whitelist 설정
 except Exception:
@@ -69,8 +70,6 @@ except Exception:
 # util.merge_csv_files(save_file_name=f"merged_{keyword}", read_folder_path_="./url/crawling_result", save_folder_path_="./url/merged_files", subset='number')
 
 # [옵션 : 갤러리 이름을 list로 받아서 크롤링]
-keyword = "감자"       # 검색할 키워드
-gall_name_list = ["해외선물실투", "에너지주식"]
 for gall_name in gall_name_list:
     crawl_url(gall_url[gall_name], keyword, blacklist_, whitelist_)    # [1. url 크롤링]
     crawl_text(gall_url[gall_name], keyword, blacklist_, whitelist_)   # [2. text 크롤링]
