@@ -11,7 +11,7 @@ import traceback
 
 ##############################################
 # 기능 : 검색 조건의 dcinside 글 url 정보 받아오기
-def crawl_url(gall_url, search_keyword, blacklist, whitelist=None):
+def crawl_url(gall_url, search_keyword, blacklist=None, whitelist=None):
     # 0. 기본값 세팅
     crawling_start_time = datetime.now().replace(microsecond=0)    # 시작 시각 : 실행 시간을 잴 때 사용
     crawler_type = "url_crawler"    # 크롤러 타입
@@ -22,8 +22,12 @@ def crawl_url(gall_url, search_keyword, blacklist, whitelist=None):
     url_rows, error_logs = [], []
     gall_name = ""
     error_log_file_path = f"./url/error_log/url_error_log_{search_keyword}_기본값세팅에러.csv"
+    if blacklist is None:
+        blacklist = []
     if whitelist is None:
         whitelist = []
+    print(f"blacklist = {blacklist}")
+    print(f"whitelist = {whitelist}")
     try:
         soup = cr.get_soup(gall_url)   # soup 설정
         gall_id = cr.get_gall_id(gall_url)      # 갤러리 id
@@ -95,8 +99,8 @@ def crawl_url(gall_url, search_keyword, blacklist, whitelist=None):
 
     # 2. url 크롤링 결과 저장 : .csv 파일
     print(f"[{gall_name} : '{search_keyword}' 크롤링 결과]")
-    print(f"[걸린 시간] {crawling_duration} 초")
-    print(f"[모은 정보] {row_count} 개")
+    print(f"[소요된 시간] {crawling_duration} 초")
+    print(f"[수집한 정보] {row_count} 개")
     url_columns = ['community', 'gall_id', 'search_keyword', 'number', 'date_created', 'time_created', 'url', 'title', 'author', 'recommend']
     df_crawling_result = pd.DataFrame(url_rows, columns=url_columns)
     df_crawling_result.to_csv(crawling_result_file_path, encoding='utf-8', index=False)  # df의 내용을 csv 형식으로 저장합니다
@@ -120,7 +124,7 @@ def crawl_url(gall_url, search_keyword, blacklist, whitelist=None):
 
 #####################################
 # 기능 : dcinside 글 url을 타고 들어가서 본문과 댓글 정보를 수집한다
-def crawl_text(gall_url, search_keyword, blacklist, whitelist=None, chunk_size=100):
+def crawl_text(gall_url, search_keyword, blacklist=None, whitelist=None, chunk_size=100):
     # 0. 기본값 세팅
     crawling_start_time = datetime.now().replace(microsecond=0)  # 시작 시각 : 실행 시간을 잴 때 사용
     crawler_type = "text_crawler"  # 크롤러 타입
@@ -132,8 +136,12 @@ def crawl_text(gall_url, search_keyword, blacklist, whitelist=None, chunk_size=1
     error_logs = []
     gall_name = ""
     error_log_file_path = f"./url/error_log/url_error_log_{search_keyword}_기본값세팅에러.csv"
+    if blacklist is None:
+        blacklist = []
     if whitelist is None:
         whitelist = []
+    print(f"blacklist = {blacklist}")
+    print(f"whitelist = {whitelist}")
     try:
         util.create_folder(f"./text/temp_crawling_result")  # 폴더 만들기 : temp_crawling_result
         util.create_folder(f"./text/crawling_result")       # 폴더 만들기 : crawling_result
@@ -239,7 +247,7 @@ def crawl_text(gall_url, search_keyword, blacklist, whitelist=None, chunk_size=1
     crawling_end_time = datetime.now().replace(microsecond=0)                              # 종료 시각 : 실행 시간을 잴 때 사용
     crawling_duration = round((crawling_end_time - crawling_start_time).total_seconds())     # 실행 시간 : 크롤링에 걸린 시간
     error_count = len(error_logs)  # 에러가 발생한 횟수
-    # 임시파일 합쳤으면, 임시파일을 삭제한다
+    # [임시파일 합쳤으면, 임시파일을 삭제한다]
     util.delete_files(folder_path="./text/temp_crawling_result", keyword=f"{search_keyword}_{gall_name}")
 
     # [합친 파일을 불러온다]
@@ -248,8 +256,8 @@ def crawl_text(gall_url, search_keyword, blacklist, whitelist=None, chunk_size=1
     row_count = len(df_crawling_result)  # 크롤링된 row 개수
 
     print(f"[{gall_name} : '{search_keyword}' 크롤링 결과]")
-    print(f"[걸린 시간] {crawling_duration} 초")
-    print(f"[모은 정보] {row_count} 개")
+    print(f"[소요된 시간] {crawling_duration} 초")
+    print(f"[수집한 정보] {row_count} 개")
 
     # 3. 크롤링 로그 저장 : .csv 파일
     crawling_log_row = [[crawler_type, community, gall_id, gall_name, gall_url, search_keyword,
