@@ -66,7 +66,7 @@ except Exception:
 
 ###############################################################################################################
 
-# [옵션 : 키워드 여러개로 검색하고, 파일 합치기] ["./url/crawling_result" 의 폴더 내 파일 전부 합침]
+# [옵션 : 키워드 여러개로 검색하고, url 파일 합치기] ["./url/crawling_result" 의 폴더 내 파일 전부 합침]
 # util.merge_csv_files(save_file_name=f"merged_{keyword}", read_folder_path_="./url/crawling_result", save_folder_path_="./url/merged_files", subset='number')
 
 # [옵션 : 갤러리 이름을 list로 받아서 크롤링]
@@ -74,4 +74,9 @@ for gall_name in gall_name_list:
     crawl_url(gall_url[gall_name], keyword, blacklist_, whitelist_)    # [1. url 크롤링]
     crawl_text(gall_url[gall_name], keyword, blacklist_, whitelist_)   # [2. text 크롤링]
     print(f"[크롤링 종료] {gall_name} 갤러리")
+
+# [옵션 : 크롤링 전부 끝나면, 결과와 로그 파일을 합쳐서 저장한다]
+util.merge_crawling_results(keyword)
+
+
 ###############################################################################################################
