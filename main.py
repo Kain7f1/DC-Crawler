@@ -13,6 +13,8 @@ blacklist = {
     , "금양": ["http", "황금양", "금양말", "조금양", "지금양", "방금양", "금양전", "세금양"]
     , "기아": ["http", "기아니", "기아님", "기아닐", "기아닌", "기아이", "기아녀", "기아파트", "기아들", "급기아", "새기아", "사기아", "얘기아", "전기아", "광기아", "러기아", "자기아빠", "자기아들", "자기아는", "장기아프"]
     , "토스": ["http", "토스트", "도리토스", "치토스", "멘토스", "셀토스", "키보토스", "프로토스", "테스토스", "토스테론"]
+    , "코스맥스": ["http", "맥도날드"]
+    , "콜마": ["http", "콜마비"]
 }
 
 # 검색할 키워드(keyword)의 화이트리스트 : whitelist의 단어가 있으면, 유의미한 정보로 판단한다. 블랙리스트의 단어가 포함될지라도.
@@ -27,6 +29,7 @@ gall_url = {
     , "코스피": "https://gall.dcinside.com/mgallery/board/lists?id=kospi"
     , "미국주식": "https://gall.dcinside.com/mgallery/board/lists?id=stockus"
     , "해외주식": "https://gall.dcinside.com/mgallery/board/lists/?id=tenbagger"
+    , "주식": "https://gall.dcinside.com/board/lists/?id=neostock"
     , "재테크": "https://gall.dcinside.com/mgallery/board/lists?id=jaetae"
     , "부동산": "https://gall.dcinside.com/board/lists/?id=immovables"         # 부동산갤 blacklist : ["서울말", "경출요뽑요", "조희팔"]
     , "슨피": "https://gall.dcinside.com/mini/board/lists/?id=snp500"
@@ -47,10 +50,12 @@ gall_url = {
 
 #############################################################################
 #                                 << 설정값 >>
-keyword = "기아"       # 검색할 키워드
+keyword = "콜마"       # 검색할 키워드
 gall_name = ""    # 검색할 갤러리 선택하기
-gall_name_list = ["코스피", "실전주식투자", "미국주식", "해외주식", "부동산", "재테크",
-                  "슨피", "다우", "나스닥", "증권", "금융", "해외선물", "해외선물실투", "국내선물옵션"]
+gall_name_list = [
+    "코스피", "실전주식투자", "미국주식", "해외주식", "주식", "부동산", "재테크", "슨피"
+    , "다우", "나스닥", "증권", "금융", "해외선물", "해외선물실투", "국내선물옵션", "캠퍼스개미"
+    ]
 try:
     whitelist_ = whitelist[keyword]     # whitelist 설정
 except Exception:
