@@ -105,6 +105,8 @@ def crawl_url(gall_url, search_keyword, blacklist=None, whitelist=None):
         url_columns = ['community', 'gall_id', 'search_keyword', 'number', 'date_created', 'time_created', 'url', 'title', 'author', 'recommend']
         df_crawling_result = pd.DataFrame(url_rows, columns=url_columns)
         df_crawling_result.to_csv(crawling_result_file_path, encoding='utf-8', index=False)  # df의 내용을 csv 형식으로 저장합니다
+    else:
+        print("수집된 데이터가 0건이므로, 파일을 생성하지 않습니다")
 
     # 3. 크롤링 로그 저장 : .csv 파일
     crawling_log_row = [[crawler_type, community, gall_id, gall_name, gall_url, search_keyword,
