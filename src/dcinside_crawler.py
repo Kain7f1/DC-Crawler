@@ -92,18 +92,19 @@ def crawl_url(gall_url, search_keyword, blacklist=None, whitelist=None):
                     error_info = traceback.format_exc()
                     error_logs.append([crawler_type, community, gall_name, search_keyword, error_info])
 
-    crawling_end_time = datetime.now().replace(microsecond=0)                              # 종료 시각 : 실행 시간을 잴 때 사용
+    crawling_end_time = datetime.now().replace(microsecond=0)                                # 종료 시각 : 실행 시간을 잴 때 사용
     crawling_duration = round((crawling_end_time - crawling_start_time).total_seconds())     # 실행 시간 : 크롤링에 걸린 시간
-    error_count = len(error_logs)                                    # 에러가 발생한 횟수
-    row_count = len(url_rows)                                    # 크롤링된 row 개수
+    error_count = len(error_logs)   # 에러가 발생한 횟수
+    row_count = len(url_rows)       # 크롤링된 row 개수
 
     # 2. url 크롤링 결과 저장 : .csv 파일
-    print(f"[{gall_name} : '{search_keyword}' 크롤링 결과]")
-    print(f"[소요된 시간] {crawling_duration} 초")
-    print(f"[수집한 정보] {row_count} 개")
-    url_columns = ['community', 'gall_id', 'search_keyword', 'number', 'date_created', 'time_created', 'url', 'title', 'author', 'recommend']
-    df_crawling_result = pd.DataFrame(url_rows, columns=url_columns)
-    df_crawling_result.to_csv(crawling_result_file_path, encoding='utf-8', index=False)  # df의 내용을 csv 형식으로 저장합니다
+    if row_count > 0:   # 데이터가 0개면 저장안함
+        print(f"[{gall_name} : '{search_keyword}' 크롤링 결과]")
+        print(f"[소요된 시간] {crawling_duration} 초")
+        print(f"[수집한 정보] {row_count} 개")
+        url_columns = ['community', 'gall_id', 'search_keyword', 'number', 'date_created', 'time_created', 'url', 'title', 'author', 'recommend']
+        df_crawling_result = pd.DataFrame(url_rows, columns=url_columns)
+        df_crawling_result.to_csv(crawling_result_file_path, encoding='utf-8', index=False)  # df의 내용을 csv 형식으로 저장합니다
 
     # 3. 크롤링 로그 저장 : .csv 파일
     crawling_log_row = [[crawler_type, community, gall_id, gall_name, gall_url, search_keyword,
@@ -172,6 +173,9 @@ def crawl_text(gall_url, search_keyword, blacklist=None, whitelist=None, chunk_s
     # 1. url.csv 파일 정보를 읽어와서, 크롤링
     df_url = pd.read_csv(url_file_path, encoding='utf-8')
     url_row_count = len(df_url)     # url csv 파일 데이터 개수
+    if url_row_count == 0:
+        print("[crawl_text() 종료] url 파일에 저장된 데이터가 없습니다.")
+        return
     print(f"[df_url을 불러왔습니다. 데이터 수 : {url_row_count}]")
     sub_dfs = util.split_df_into_sub_dfs(df_url, chunk_size=chunk_size)     # df를 chunk_size 단위로 쪼갬
     print(f"[데이터를 sub_df 단위로 쪼갰습니다. sub_df의 수 : {len(sub_dfs)}]")
