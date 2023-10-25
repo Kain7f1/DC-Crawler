@@ -95,6 +95,7 @@ def delete_files(folder_path, keyword=None):
         else:
             print(f"File not found: {file_path}")
 
+
 #####################################
 # 전처리 함수 : dcinside
 def preprocess_text_dc(text):
@@ -200,10 +201,10 @@ def is_korean(s):
 # url~text 크롤링 결과와 로그 파일을 합쳐 4개의 파일로 만든다
 def merge_crawling_results(keyword):
     merge_csv_files(keyword=keyword, save_file_name=f"merged_url_crawling_result_{keyword}",
-                         read_folder_path_="./url/crawling_result", save_folder_path_="./crawling_result")
+                    read_folder_path_="./url/crawling_result", save_folder_path_="./crawling_result")
     merge_csv_files(keyword=keyword, save_file_name=f"merged_url_crawling_log_{keyword}",
-                         read_folder_path_="./url/crawling_log", save_folder_path_="./crawling_result")
+                    read_folder_path_="./url/crawling_log", save_folder_path_="./crawling_result")
     merge_csv_files(keyword=keyword, save_file_name=f"merged_text_crawling_result_{keyword}",
-                         read_folder_path_="./text/crawling_result", save_folder_path_="./crawling_result")
+                    read_folder_path_="./text/crawling_result", save_folder_path_="./crawling_result")
     merge_csv_files(keyword=keyword, save_file_name=f"merged_text_crawling_log_{keyword}",
-                         read_folder_path_="./text/crawling_log", save_folder_path_="./crawling_result")
+                    read_folder_path_="./text/crawling_log", save_folder_path_="./crawling_result")
