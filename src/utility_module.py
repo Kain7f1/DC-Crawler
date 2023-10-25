@@ -95,6 +95,7 @@ def delete_files(folder_path, keyword=None):
         else:
             print(f"File not found: {file_path}")
 
+
 #####################################
 # 전처리 함수 : dcinside
 def preprocess_text_dc(text):
@@ -194,3 +195,16 @@ def find_file(keyword,  folder_path_='./'):
 # 한국어인지 검사하는 함수
 def is_korean(s):
     return bool(re.fullmatch("[\u3131-\u3163\uAC00-\uD7A3]+", s))
+
+
+#######################################
+# url~text 크롤링 결과와 로그 파일을 합쳐 4개의 파일로 만든다
+def merge_crawling_results(keyword):
+    merge_csv_files(keyword=keyword, save_file_name=f"merged_url_crawling_result_{keyword}",
+                    read_folder_path_="./url/crawling_result", save_folder_path_="./crawling_result")
+    merge_csv_files(keyword=keyword, save_file_name=f"merged_url_crawling_log_{keyword}",
+                    read_folder_path_="./url/crawling_log", save_folder_path_="./crawling_result")
+    merge_csv_files(keyword=keyword, save_file_name=f"merged_text_crawling_result_{keyword}",
+                    read_folder_path_="./text/crawling_result", save_folder_path_="./crawling_result")
+    merge_csv_files(keyword=keyword, save_file_name=f"merged_text_crawling_log_{keyword}",
+                    read_folder_path_="./text/crawling_log", save_folder_path_="./crawling_result")
