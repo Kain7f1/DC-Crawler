@@ -55,7 +55,7 @@ def read_files(folder_path_='./', keyword=None, endswith='.csv'):
 #####################################
 # merge_csv_files()
 # 기능 : .csv 파일들을 하나로 합친다
-def merge_csv_files(save_file_name, read_folder_path_='./', save_folder_path_='./', keyword=None, subset=None):
+def merge_csv_files(save_file_name, read_folder_path_='./', save_folder_path_='./', keyword=None, subset=None, save_file_encoding='utf-8'):
     create_folder(save_folder_path_)
     start_time = datetime.now().replace(microsecond=0)
     str_start_time = str(start_time)[2:10].replace("-", "") + "_" + str(start_time)[11:].replace(":", "")
@@ -78,7 +78,7 @@ def merge_csv_files(save_file_name, read_folder_path_='./', save_folder_path_='.
     print(merged_df.tail())
 
     # 3. df를 csv로 만든다
-    merged_df.to_csv(f"{save_folder_path_}/{save_file_name}_{str_start_time}.csv", encoding='utf-8', index=False)
+    merged_df.to_csv(f"{save_folder_path_}/{save_file_name}_{str_start_time}.csv", encoding=save_file_encoding, index=False)
     print(f"[{len(csv_file_paths)}개의 파일을 {save_file_name}.csv 파일로 합쳤습니다]")
     print(f"총 데이터 개수 : {len(merged_df)}개")
 
@@ -203,8 +203,8 @@ def merge_crawling_results(keyword):
     merge_csv_files(keyword=keyword, save_file_name=f"merged_url_crawling_result_{keyword}",
                     read_folder_path_="./url/crawling_result", save_folder_path_="./crawling_result")
     merge_csv_files(keyword=keyword, save_file_name=f"merged_url_crawling_log_{keyword}",
-                    read_folder_path_="./url/crawling_log", save_folder_path_="./crawling_result")
+                    read_folder_path_="./url/crawling_log", save_folder_path_="./crawling_result", save_file_encoding='ANSI')
     merge_csv_files(keyword=keyword, save_file_name=f"merged_text_crawling_result_{keyword}",
                     read_folder_path_="./text/crawling_result", save_folder_path_="./crawling_result")
     merge_csv_files(keyword=keyword, save_file_name=f"merged_text_crawling_log_{keyword}",
-                    read_folder_path_="./text/crawling_log", save_folder_path_="./crawling_result")
+                    read_folder_path_="./text/crawling_log", save_folder_path_="./crawling_result", save_file_encoding='ANSI')

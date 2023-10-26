@@ -107,13 +107,14 @@ def crawl_url(gall_url, search_keyword, blacklist=None, whitelist=None):
         df_crawling_result.to_csv(crawling_result_file_path, encoding='utf-8', index=False)  # df의 내용을 csv 형식으로 저장합니다
 
         # 3. 크롤링 로그 저장 : .csv 파일
-        crawling_log_row = [[crawler_type, community, gall_id, gall_name, gall_url, search_keyword,
-                             blacklist, whitelist, crawling_start_time, crawling_end_time,
-                             black_count, error_count, row_count, crawling_duration
-                             ]]
-        crawling_log_columns = ['crawler_type', 'community', 'gall_id', 'gall_name', 'gall_url', 'search_keyword',
-                                'blacklist', 'whitelist', 'crawling_start_time', 'crawling_end_time',
-                                'black_count', 'error_count', 'row_count', 'crawling_duration']
+        crawling_log_row = [[
+            crawler_type, community, gall_name, row_count, crawling_duration, black_count, error_count,
+            gall_id, gall_url, search_keyword, blacklist, whitelist, crawling_start_time, crawling_end_time
+            ]]
+        crawling_log_columns = [
+            'crawler_type', 'community', 'gall_name', 'row_count', 'crawling_duration', 'black_count', 'error_count',
+            'gall_id', 'gall_url', 'search_keyword', 'blacklist', 'whitelist', 'crawling_start_time', 'crawling_end_time'
+            ]
         df_crawling_log = pd.DataFrame(crawling_log_row, columns=crawling_log_columns)
         df_crawling_log.to_csv(crawling_log_file_path, encoding='utf-8', index=False)  # df의 내용을 csv 형식으로 저장합니다
     else:
@@ -266,13 +267,14 @@ def crawl_text(gall_url, search_keyword, blacklist=None, whitelist=None, chunk_s
     print(f"[수집한 정보] {row_count} 개")
 
     # 3. 크롤링 로그 저장 : .csv 파일
-    crawling_log_row = [[crawler_type, community, gall_id, gall_name, gall_url, search_keyword,
-                         blacklist, whitelist, crawling_start_time, crawling_end_time,
-                         black_count, error_count, row_count, crawling_duration
-                         ]]
-    crawling_log_columns = ['crawler_type', 'community', 'gall_id', 'gall_name', 'gall_url', 'search_keyword',
-                            'blacklist', 'whitelist', 'crawling_start_time', 'crawling_end_time',
-                            'black_count', 'error_count', 'row_count', 'crawling_duration']
+    crawling_log_row = [[
+        crawler_type, community, gall_name, row_count, crawling_duration, black_count, error_count,
+        gall_id, gall_url, search_keyword, blacklist, whitelist, crawling_start_time, crawling_end_time
+    ]]
+    crawling_log_columns = [
+        'crawler_type', 'community', 'gall_name', 'row_count', 'crawling_duration', 'black_count', 'error_count',
+        'gall_id', 'gall_url', 'search_keyword', 'blacklist', 'whitelist', 'crawling_start_time', 'crawling_end_time'
+    ]
     df_crawling_log = pd.DataFrame(crawling_log_row, columns=crawling_log_columns)
     df_crawling_log.to_csv(crawling_log_file_path, encoding='utf-8', index=False)  # df의 내용을 csv 형식으로 저장합니다
 
