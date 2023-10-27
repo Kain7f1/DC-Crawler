@@ -50,7 +50,7 @@ gall_url = {
 
 #############################################################################
 #                                 << 설정값 >>
-keyword = "피엔티"       # 검색할 키워드
+keyword = "컴투스"       # 검색할 키워드
 gall_name = ""    # 검색할 갤러리 선택하기
 gall_name_list = [
     "코스피", "실전주식투자", "미국주식", "해외주식", "주식", "부동산", "재테크", "슨피"
@@ -63,7 +63,7 @@ except Exception:
 try:
     blacklist_ = blacklist[keyword]     # blacklist 설정
 except Exception:
-    blacklist_ = ["http"]    # blacklist 디폴트 값
+    blacklist_ = ["http", "씹덕의 주식", "최애의 주식"]    # blacklist 디폴트 값
 ###############################################################################################################
 #                                            << 실행하는 곳 >>
 # crawl_url(gall_url[gall_name], keyword, blacklist_, whitelist_)    # [1. url 크롤링]
@@ -72,17 +72,15 @@ except Exception:
 ###############################################################################################################
 
 # [옵션 : 갤러리 이름을 list로 받아서 크롤링]
-# for gall_name in gall_name_list:
-#     crawl_url(gall_url[gall_name], keyword, blacklist_, whitelist_)    # [1. url 크롤링]
-#     crawl_text(gall_url[gall_name], keyword, blacklist_, whitelist_)   # [2. text 크롤링]
-#     print(f"[크롤링 종료] {gall_name} 갤러리")
-
+for gall_name in gall_name_list:
+    crawl_url(gall_url[gall_name], keyword, blacklist_, whitelist_)  # [1. url 크롤링]
+for gall_name in gall_name_list:
+    crawl_text(gall_url[gall_name], keyword, blacklist_, whitelist_)  # [2. text 크롤링]
 
 # [옵션 : 크롤링 전부 끝나면, 결과와 로그 파일을 합쳐서 저장한다]
 util.merge_crawling_results(keyword)
 
-# [옵션 : 키워드 여러개로 검색하고, url 파일 합치기] [갤러리별로 합침]
+# [옵션 : 중복되는 url 제거하고 하나로 합침] (갤러리별로 합침)
 # for gall_name in gall_name_list:
-#     util.merge_csv_files(save_file_name=f"merged_url_crawling_result_{keyword}_{gall_name}", read_folder_path_="./url/crawling_result",
-#                          save_folder_path_="./url/merged_files", keyword=f"{gall_name}", subset='number')
+#     util.merge_csv_files(save_file_name=f"merged_url_crawling_result_{keyword}_{gall_name}", read_folder_path_="./url/crawling_result", save_folder_path_="./url/merged_files", keyword=f"{gall_name}", subset='number')
 ###############################################################################################################
