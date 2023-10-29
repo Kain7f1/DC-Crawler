@@ -19,8 +19,7 @@ blacklist = {
 
 # 검색할 키워드(keyword)의 화이트리스트 : whitelist의 단어가 있으면, 유의미한 정보로 판단한다. 블랙리스트의 단어가 포함될지라도.
 whitelist = {
-    "엘앤에프": ["플레이"]
-    , "기아": ["기아차", "기아자동차", "현대"]
+    "기아": ["기아차", "기아자동차", "현대"]
 }
 
 # [갤러리 목록] "____" 갤러리
@@ -50,11 +49,12 @@ gall_url = {
 
 #############################################################################
 #                                 << 설정값 >>
-keyword = "컴투스"       # 검색할 키워드
+keyword = "엘앤에프"       # 검색할 키워드
 gall_name = ""    # 검색할 갤러리 선택하기
 gall_name_list = [
-    "코스피", "실전주식투자", "미국주식", "해외주식", "주식", "부동산", "재테크", "슨피"
-    , "다우", "나스닥", "증권", "금융", "해외선물", "해외선물실투", "국내선물옵션", "캠퍼스개미"
+    "코스피", "실전주식투자", "미국주식", "해외주식", "주식", "재테크", "슨피",
+    "다우", "나스닥", "증권", "금융", "해외선물", "해외선물실투", "국내선물옵션", "캠퍼스개미",
+    "부동산"
     ]
 try:
     whitelist_ = whitelist[keyword]     # whitelist 설정
@@ -64,6 +64,7 @@ try:
     blacklist_ = blacklist[keyword]     # blacklist 설정
 except Exception:
     blacklist_ = ["http", "씹덕의 주식", "최애의 주식"]    # blacklist 디폴트 값
+
 ###############################################################################################################
 #                                            << 실행하는 곳 >>
 # crawl_url(gall_url[gall_name], keyword, blacklist_, whitelist_)    # [1. url 크롤링]
@@ -72,15 +73,20 @@ except Exception:
 ###############################################################################################################
 
 # [옵션 : 갤러리 이름을 list로 받아서 크롤링]
-for gall_name in gall_name_list:
-    crawl_url(gall_url[gall_name], keyword, blacklist_, whitelist_)  # [1. url 크롤링]
+# for gall_name in gall_name_list:
+#     crawl_url(gall_url[gall_name], keyword, blacklist_, whitelist_)  # [1. url 크롤링]
 for gall_name in gall_name_list:
     crawl_text(gall_url[gall_name], keyword, blacklist_, whitelist_)  # [2. text 크롤링]
 
 # [옵션 : 크롤링 전부 끝나면, 결과와 로그 파일을 합쳐서 저장한다]
 util.merge_crawling_results(keyword)
 
-# [옵션 : 중복되는 url 제거하고 하나로 합침] (갤러리별로 합침)
+###############################################################################################################
+
+# 키워드 여러개로 검색, url 파일 여러개 합치기
+# 중복되는 글을 제거함.
+# "현대차", "현대자동차" 처럼 여러개 검색하고 합칠 때 사용
 # for gall_name in gall_name_list:
 #     util.merge_csv_files(save_file_name=f"merged_url_crawling_result_{keyword}_{gall_name}", read_folder_path_="./url/crawling_result", save_folder_path_="./url/merged_files", keyword=f"{gall_name}", subset='number')
+
 ###############################################################################################################
