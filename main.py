@@ -45,11 +45,15 @@ gall_url = {
     , "에너지주식": "https://gall.dcinside.com/mini/board/lists/?id=energystock"
     , "초전도체": "https://gall.dcinside.com/board/lists/?id=superconductor"
     , "편의점": "https://gall.dcinside.com/board/lists/?id=cs_new1"
+    , "중세게임": "https://gall.dcinside.com/mgallery/board/lists?id=aoegame"
+    , "검은사막": "https://gall.dcinside.com/board/lists/?id=bd"
+    , "검은사막하이델": "https://gall.dcinside.com/mgallery/board/lists/?id=heidel"
+    , "로스트아크": "https://gall.dcinside.com/board/lists/?id=lostark"
 }
 
 #############################################################################
 #                                 << 설정값 >>
-keyword = "lg화학"       # 검색할 키워드
+keyword = "펄어비스"       # 검색할 키워드
 gall_name = ""    # 검색할 갤러리 선택하기
 gall_name_list = [
     "코스피",
@@ -65,7 +69,7 @@ try:
     blacklist_ = blacklist[keyword]     # blacklist 설정
 except Exception:
     blacklist_ = ["http"]                               # blacklist 디폴트 값
-    # blacklist_ = ["http", "씹덕의 주식", "최애의 주식"]     # 코스피갤 blacklist : url만
+    # blacklist_ = ["http", "의 주식"]     # 코스피갤 blacklist : url만
 ###############################################################################################################
 #                                            << 실행하는 곳 >>
 # crawl_url(gall_url[gall_name], keyword, blacklist_, whitelist_)    # [1. url 크롤링]
@@ -74,12 +78,12 @@ except Exception:
 ###############################################################################################################
 
 # [옵션 : 갤러리 이름을 list로 받아서 크롤링]
-# for gall_name in gall_name_list:
-#     crawl_url(gall_url[gall_name], keyword, blacklist_, whitelist_)  # [1. url 크롤링]
 for gall_name in gall_name_list:
-    crawl_text(gall_url[gall_name], keyword, blacklist_, whitelist_)  # [2. text 크롤링]
-
-util.merge_crawling_results(keyword)    # [옵션 : 크롤링 전부 끝나면, 결과와 로그 파일을 합쳐서 저장한다]
+    crawl_url(gall_url[gall_name], keyword, blacklist_, whitelist_)  # [1. url 크롤링]
+# for gall_name in gall_name_list:
+#     crawl_text(gall_url[gall_name], keyword, blacklist_, whitelist_)  # [2. text 크롤링]
+#
+# util.merge_crawling_results(keyword)    # [옵션 : 크롤링 전부 끝나면, 결과와 로그 파일을 합쳐서 저장한다]
 
 ###############################################################################################################
 
