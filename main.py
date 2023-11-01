@@ -51,37 +51,37 @@ gall_url = {
     , "로스트아크": "https://gall.dcinside.com/board/lists/?id=lostark"
 }
 
-#############################################################################
-#                                 << 설정값 >>
-keyword = "펄어비스"       # 검색할 키워드
-gall_name = ""    # 검색할 갤러리 선택하기
+#############################################################################################
+#                                        << 설정값 >>
+keyword = "엘앤에프"       # 검색할 키워드
 gall_name_list = [
-    "코스피",
-    # "실전주식투자", "미국주식", "해외주식", "주식", "재테크", "슨피",
+    # "코스피", "실전주식투자", "미국주식", "해외주식", "주식", "재테크", "슨피",
     # "다우", "나스닥", "증권", "금융", "해외선물", "해외선물실투", "국내선물옵션", "캠퍼스개미",
+    "캠퍼스개미",
     # "부동산"   #
     ]
+# start_date = None
+# end_date = None
+start_date = "2023-08-01"
+end_date = "2023-10-20"
+
 try:
     whitelist_ = whitelist[keyword]     # whitelist 설정
 except Exception:
-    whitelist_ = None        # whitelist 디폴트 값
+    whitelist_ = None                   # whitelist 디폴트 값
 try:
     blacklist_ = blacklist[keyword]     # blacklist 설정
 except Exception:
-    blacklist_ = ["http"]                               # blacklist 디폴트 값
+    blacklist_ = ["http"]               # blacklist 디폴트 값
     # blacklist_ = ["http", "의 주식"]     # 코스피갤 blacklist : url만
+
 ###############################################################################################################
 #                                            << 실행하는 곳 >>
-# crawl_url(gall_url[gall_name], keyword, blacklist_, whitelist_)    # [1. url 크롤링]
-# crawl_text(gall_url[gall_name], keyword, blacklist_, whitelist_)   # [2. text 크롤링]
 
-###############################################################################################################
-
-# [옵션 : 갤러리 이름을 list로 받아서 크롤링]
-for gall_name in gall_name_list:
-    crawl_url(gall_url[gall_name], keyword, blacklist_, whitelist_)  # [1. url 크롤링]
 # for gall_name in gall_name_list:
-#     crawl_text(gall_url[gall_name], keyword, blacklist_, whitelist_)  # [2. text 크롤링]
+#     crawl_url(gall_url[gall_name], keyword, blacklist_, whitelist_, start_date, end_date)  # [1. url 크롤링]
+for gall_name in gall_name_list:
+    crawl_text(gall_url[gall_name], keyword, blacklist_, whitelist_, start_date, end_date)  # [2. text 크롤링]
 #
 # util.merge_crawling_results(keyword)    # [옵션 : 크롤링 전부 끝나면, 결과와 로그 파일을 합쳐서 저장한다]
 
