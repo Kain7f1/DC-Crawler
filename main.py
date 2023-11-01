@@ -45,17 +45,21 @@ gall_url = {
     , "에너지주식": "https://gall.dcinside.com/mini/board/lists/?id=energystock"
     , "초전도체": "https://gall.dcinside.com/board/lists/?id=superconductor"
     , "편의점": "https://gall.dcinside.com/board/lists/?id=cs_new1"
+    , "중세게임": "https://gall.dcinside.com/mgallery/board/lists?id=aoegame"
+    , "검은사막": "https://gall.dcinside.com/board/lists/?id=bd"
+    , "검은사막하이델": "https://gall.dcinside.com/mgallery/board/lists/?id=heidel"
+    , "로스트아크": "https://gall.dcinside.com/board/lists/?id=lostark"
 }
 
 #############################################################################
 #                                 << 설정값 >>
-keyword = "lg화학"       # 검색할 키워드
+keyword = "펄어비스"       # 검색할 키워드
 gall_name = ""    # 검색할 갤러리 선택하기
 gall_name_list = [
-    # "코스피",
-    "실전주식투자", "미국주식", "해외주식", "주식", "재테크", "슨피",
-    "다우", "나스닥", "증권", "금융", "해외선물", "해외선물실투", "국내선물옵션", "캠퍼스개미",
-    "부동산"   #
+    "코스피",
+    # "실전주식투자", "미국주식", "해외주식", "주식", "재테크", "슨피",
+    # "다우", "나스닥", "증권", "금융", "해외선물", "해외선물실투", "국내선물옵션", "캠퍼스개미",
+    # "부동산"   #
     ]
 try:
     whitelist_ = whitelist[keyword]     # whitelist 설정
@@ -65,7 +69,7 @@ try:
     blacklist_ = blacklist[keyword]     # blacklist 설정
 except Exception:
     blacklist_ = ["http"]                               # blacklist 디폴트 값
-    # blacklist_ = ["http", "씹덕의 주식", "최애의 주식"]     # 코스피갤 blacklist : url만
+    # blacklist_ = ["http", "의 주식"]     # 코스피갤 blacklist : url만
 ###############################################################################################################
 #                                            << 실행하는 곳 >>
 # crawl_url(gall_url[gall_name], keyword, blacklist_, whitelist_)    # [1. url 크롤링]
@@ -74,18 +78,18 @@ except Exception:
 ###############################################################################################################
 
 # [옵션 : 갤러리 이름을 list로 받아서 크롤링]
-# for gall_name in gall_name_list:
-#     crawl_url(gall_url[gall_name], keyword, blacklist_, whitelist_)  # [1. url 크롤링]
 for gall_name in gall_name_list:
-    crawl_text(gall_url[gall_name], keyword, blacklist_, whitelist_)  # [2. text 크롤링]
-
-util.merge_crawling_results(keyword)    # [옵션 : 크롤링 전부 끝나면, 결과와 로그 파일을 합쳐서 저장한다]
+    crawl_url(gall_url[gall_name], keyword, blacklist_, whitelist_)  # [1. url 크롤링]
+# for gall_name in gall_name_list:
+#     crawl_text(gall_url[gall_name], keyword, blacklist_, whitelist_)  # [2. text 크롤링]
+#
+# util.merge_crawling_results(keyword)    # [옵션 : 크롤링 전부 끝나면, 결과와 로그 파일을 합쳐서 저장한다]
 
 ###############################################################################################################
 
-# [키워드 여러개로 검색, url 파일 여러개 합치기]
-# 중복되는 글을 제거함.
-# "현대차", "현대자동차" 처럼 여러개 검색하고 합칠 때 사용
+# [키워드 여러개로 검색한 결과, url 파일 여러개 합치기]
+# 합친 후, 중복되는 글을 제거함.
+# ex) "현대차", "현대자동차" 처럼 여러개 검색하고 합칠 때 사용
 # for gall_name in gall_name_list:
 #     util.merge_csv_files(save_file_name=f"merged_url_crawling_result_{keyword}_{gall_name}", read_folder_path_="./url/crawling_result", save_folder_path_="./url/merged_files", keyword=f"{gall_name}", subset='number')
 
