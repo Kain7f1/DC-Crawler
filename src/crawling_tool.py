@@ -2,7 +2,7 @@ import re
 import os
 import time
 import requests
-import datetime
+from datetime import datetime
 import pandas as pd
 import utility_module as util
 from bs4 import BeautifulSoup
@@ -192,22 +192,23 @@ def preprocess_title(text):
 # get_url_row()
 # 기능 : 검색결과에서 글 하나의 정보를 리턴한다
 # 리턴값 : is_ignore(정보가 불필요하면 True, 필요하면 False), new_row(글 하나의 정보)
-def get_url_row(element, search_info, blacklist, whitelist, max_retries=3):
+def get_url_row(element, search_info, blacklist, whitelist, start_date, end_date, max_retries=5):
     new_row = ["", "", "", 0, "", "", "", "", "", 0]
     is_ignore = False       # is_ignore이 True면, 이 함수를 사용하는 반복문을 탈출하도록 할 것입니다
     is_black = False        # 블랙리스트로 걸러졌는지 아닌지
     try:
+        # [ignore 1. 너무 많이 재시도하면 스킵]
         if max_retries <= 0:
             print("[최대 재시도 횟수 초과 : get_url_row()]")
             is_ignore = True
             return new_row, is_ignore, is_black    # 스킵
+        # [ignore 2. 공지/광고글]
         author = element.find('td', class_='gall_writer').get_text().replace("\n", "").strip()    # 글쓴이
-        # [광고글 ignore]
         if author == "운영자":            # 광고글은 글쓴이가 "운영자"
             is_ignore = True
             return new_row, is_ignore, is_black    # 광고글 스킵
+        # [ignore 3. 블랙리스트]
         title = element.find('td', class_='gall_tit ub-word').find('a').get_text(strip=True)    # title
-        # [블랙리스트 ignore]
         if util.contains_any_from_list(title, whitelist):     # whitelist에 해당하는 단어 발견
             print("[WhiteList - 제목] : ", title)
             pass    # 제목에 whitellist의 단어가 있으면, 수집한다
@@ -216,16 +217,29 @@ def get_url_row(element, search_info, blacklist, whitelist, max_retries=3):
             is_ignore = True              # 제목에 blacklist의 단어가 있으면
             is_black = True
             return new_row, is_ignore, is_black     # 무시하고 넘어가기
-        number = int(element.find('td', class_='gall_num').get_text())                    # 글 번호
+        # [ignore 4. 날짜 조건]
         date_created = element.find('td', class_='gall_date')['title'][:10]               # 생성된 날짜
+        date_created_datetime = datetime.strptime(date_created, "%Y-%m-%d")
+        if end_date is not None:
+            start_date_datetime = datetime.strptime(start_date, "%Y-%m-%d")
+            end_date_datetime = datetime.strptime(end_date, "%Y-%m-%d")
+            if date_created_datetime > end_date_datetime:
+                print("[시간 범위에 해당되지 않음 1]")
+                is_ignore = True
+                return new_row, is_ignore, is_black  # 스킵
+            elif date_created_datetime < start_date_datetime:
+                print("[시간 범위에 해당되지 않음 2]")
+                is_ignore = True
+                return new_row, is_ignore, is_black  # 스킵
         time_created = element.find('td', class_='gall_date')['title'][11:]               # 생성된 시각
+        number = int(element.find('td', class_='gall_num').get_text())                    # 글 번호
         url = "https://gall.dcinside.com" + element.select_one("td.gall_tit a")['href']   # 글 url
         title = preprocess_title(title)                                                   # 글 제목
         recommend = element.find('td', class_='gall_recommend').get_text()                # 추천수
         new_row = [search_info["community"], search_info["gall_id"], search_info["search_keyword"], number, date_created, time_created, url, title, author, recommend]
     except Exception as e:
         print("[오류 발생, 반복] [get_url_row()] ", e)
-        new_row, is_ignore, is_black = get_url_row(element, search_info, blacklist, whitelist, max_retries-1)
+        new_row, is_ignore, is_black = get_url_row(element, search_info, blacklist, whitelist, start_date, end_date, max_retries-1)
     return new_row, is_ignore, is_black
 
 
@@ -265,7 +279,7 @@ def get_post_row(url_row, soup, blacklist, whitelist, max_retries=3):
 #####################################
 # 기능 : 댓글 row를 만들어 리턴한다
 # 리턴갑 : new_row
-def get_reply_row(url_row, reply, max_retries=3):
+def get_reply_row(url_row, reply, start_date, end_date, max_retries=5):
     is_ignore = False
     is_reply = 1        # 댓글(reply) 이므로 0
     new_row = ["", "", "", 0, "", "", "", is_reply, ""]
@@ -275,6 +289,19 @@ def get_reply_row(url_row, reply, max_retries=3):
             is_ignore = True
             return new_row, is_ignore    # 스킵
         date_created, time_created = get_reply_date(reply)
+        # [ignore : 날짜 조건]
+        date_created_datetime = datetime.strptime(date_created, "%Y-%m-%d")
+        if end_date is not None:
+            start_date_datetime = datetime.strptime(start_date, "%Y-%m-%d")
+            end_date_datetime = datetime.strptime(end_date, "%Y-%m-%d")
+            if date_created_datetime > end_date_datetime:
+                print("[시간 범위에 해당되지 않음 1]")
+                is_ignore = True
+                return new_row, is_ignore    # 스킵
+            elif date_created_datetime < start_date_datetime:
+                print("[시간 범위에 해당되지 않음 2]")
+                is_ignore = True
+                return new_row, is_ignore    # 스킵
         text = reply.find("p", {"class": "usertxt ub-word"}).text  # 댓글 내용 추출
         text = util.preprocess_text_dc(text)  # 전처리
         author = reply.select_one("span.nickname").get_text().strip()
@@ -283,7 +310,7 @@ def get_reply_row(url_row, reply, max_retries=3):
                    date_created, time_created, author, is_reply, text]
     except Exception as e:
         print(f"[오류 : get_content_row()] ", e)
-        new_row, is_ignore = get_reply_row(url_row, reply, max_retries-1)
+        new_row, is_ignore = get_reply_row(url_row, reply, start_date, end_date, max_retries-1)
     return new_row, is_ignore
 
 
@@ -382,7 +409,7 @@ def get_reply_date(reply):
     if temp_date[:2] == "20":  # 작년 이전은 "2022.09.07 10:10:54" 형식임
         date_created = temp_date[:10]
     else:  # 올해는 "09.30 10:10:54" 형식임
-        date_created = str(datetime.datetime.now().year) + "-" + temp_date[:5]  # 올해 년도를 추가함
+        date_created = str(datetime.now().year) + "-" + temp_date[:5]  # 올해 년도를 추가함
     time_created = temp_date[-8:]
     return date_created, time_created
 
