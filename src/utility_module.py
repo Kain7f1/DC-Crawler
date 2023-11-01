@@ -208,3 +208,22 @@ def merge_crawling_results(keyword):
                     read_folder_path_="./text/crawling_result", save_folder_path_="./crawling_result")
     merge_csv_files(keyword=keyword, save_file_name=f"merged_text_crawling_log_{keyword}",
                     read_folder_path_="./text/crawling_log", save_folder_path_="./crawling_result", save_file_encoding='ANSI')
+
+
+#######################################
+# 기능 : 특정 키워드(delete_keyword)가 포함된 row를 제거한 후 파일로 저장한다
+# 전제 : "target" 폴더에 적용할 파일을 올려둔다
+def delete_rows(delete_keyword, column='text', folder_path="./target"):
+    result_folder_path = create_folder(f"{folder_path}/result_files")
+    file_list = read_files(folder_path_=folder_path)
+
+    for file in file_list:
+        file_path = f"{folder_path}/{file}"
+        df = pd.read_csv(file_path, encoding='utf-8')   # 파일 읽어오기
+        len_df_before = len(df)                         # 지우기 전 row 개수
+        df_new = df[~df[column].str.contains(delete_keyword)]   # delete_keyword 가 포함된 row 제거하여 반환
+        len_df_after = len(df_new)                      # 지운 후 row 개수
+        len_diff = len_df_before - len_df_after         # 지워진 row 수
+        print(f"{len_diff} 개의 row가 삭제되었습니다. delete_keyword = {delete_keyword}")
+        df_new.to_csv(f"{result_folder_path}/deleted_rows_{file}", encoding="utf-8", index=False)  # 파일로 저장
+        print(f"{len_df_after} 개의 row가 파일로 저장되었습니다")

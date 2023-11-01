@@ -52,10 +52,10 @@ gall_url = {
 keyword = "lg화학"       # 검색할 키워드
 gall_name = ""    # 검색할 갤러리 선택하기
 gall_name_list = [
-    # "코스피",
-    "실전주식투자", "미국주식", "해외주식", "주식", "재테크", "슨피",
-    "다우", "나스닥", "증권", "금융", "해외선물", "해외선물실투", "국내선물옵션", "캠퍼스개미",
-    "부동산"   #
+    "코스피",
+    # "실전주식투자", "미국주식", "해외주식", "주식", "재테크", "슨피",
+    # "다우", "나스닥", "증권", "금융", "해외선물", "해외선물실투", "국내선물옵션", "캠퍼스개미",
+    # "부동산"   #
     ]
 try:
     whitelist_ = whitelist[keyword]     # whitelist 설정
@@ -83,9 +83,9 @@ util.merge_crawling_results(keyword)    # [옵션 : 크롤링 전부 끝나면, 
 
 ###############################################################################################################
 
-# [키워드 여러개로 검색, url 파일 여러개 합치기]
-# 중복되는 글을 제거함.
-# "현대차", "현대자동차" 처럼 여러개 검색하고 합칠 때 사용
+# [키워드 여러개로 검색한 결과, url 파일 여러개 합치기]
+# 합친 후, 중복되는 글을 제거함.
+# ex) "현대차", "현대자동차" 처럼 여러개 검색하고 합칠 때 사용
 # for gall_name in gall_name_list:
 #     util.merge_csv_files(save_file_name=f"merged_url_crawling_result_{keyword}_{gall_name}", read_folder_path_="./url/crawling_result", save_folder_path_="./url/merged_files", keyword=f"{gall_name}", subset='number')
 
