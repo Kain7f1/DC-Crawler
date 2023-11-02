@@ -110,7 +110,7 @@ def get_gall_name(soup):
     gall_name = soup.select_one("div.page_head div.fl").get_text(strip=True)
     pattern = r"(갤러리)[미니,마이너]*"
     gall_name = re.sub(pattern, r"\1", gall_name)   # "갤러리" 이후의 부분을 없애준다
-    return gall_name.replace(" ", "")        # 공백 제거하고 리턴
+    return gall_name.replace(" ", "")[:-3]        # 공백, "갤러리" 제거하고 리턴
 
 
 #############################
