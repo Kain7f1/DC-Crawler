@@ -55,7 +55,7 @@ def read_files(folder_path_='./', keyword=None, endswith='.csv'):
 #####################################
 # merge_csv_files()
 # 기능 : .csv 파일들을 하나로 합친다
-def merge_csv_files(save_file_name, read_folder_path_='./', save_folder_path_='./', keyword=None, subset=None, save_file_encoding='utf-8'):
+def merge_csv_files(save_file_name, read_folder_path_='./', save_folder_path_='./', keyword=None, subset=None, read_file_encoding='utf-8', save_file_encoding='utf-8'):
     create_folder(save_folder_path_)
     start_time = datetime.now().replace(microsecond=0)
     str_start_time = str(start_time)[2:10].replace("-", "") + "_" + str(start_time)[11:].replace(":", "")
@@ -69,7 +69,7 @@ def merge_csv_files(save_file_name, read_folder_path_='./', save_folder_path_='.
 
     # 2. df 합치기
     for csv_file_path in csv_file_paths:
-        df_content = pd.read_csv(f"{read_folder_path_}/{csv_file_path}", encoding='utf-8')
+        df_content = pd.read_csv(f"{read_folder_path_}/{csv_file_path}", encoding=read_file_encoding)
         dataframes.append(df_content)
     merged_df = pd.concat(dataframes, ignore_index=True)    # 여러 개의 데이터프레임을 하나로 합침
     if subset is not None:  # subset이 None이면 실행하지 않는다
