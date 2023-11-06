@@ -31,13 +31,13 @@ gall_url = {
     , "주식": "https://gall.dcinside.com/board/lists/?id=neostock"
     , "재테크": "https://gall.dcinside.com/mgallery/board/lists?id=jaetae"
     , "부동산": "https://gall.dcinside.com/board/lists/?id=immovables"         # 부동산갤 blacklist : ["서울말", "경출요뽑요", "조희팔"]
-    , "슨피": "https://gall.dcinside.com/mini/board/lists/?id=snp500"
+    , "S&P500": "https://gall.dcinside.com/mini/board/lists/?id=snp500"
     , "다우": "https://gall.dcinside.com/mgallery/board/lists?id=dow100"
     , "나스닥": "https://gall.dcinside.com/mgallery/board/lists?id=nasdaq"
     , "증권": "https://gall.dcinside.com/mgallery/board/lists/?id=securities"
     , "금융": "https://gall.dcinside.com/mgallery/board/lists?id=finance"
     , "해외선물": "https://gall.dcinside.com/mgallery/board/lists?id=of"
-    , "해외선물실투": "https://gall.dcinside.com/mini/board/lists/?id=kuya"
+    , "해외선물실전투자": "https://gall.dcinside.com/mini/board/lists/?id=kuya"
     , "국내선물옵션": "https://gall.dcinside.com/mini/board/lists/?id=koreafutures"
     , "캠퍼스개미": "https://gall.dcinside.com/mgallery/board/lists?id=smow"
     , "신용카드": "https://gall.dcinside.com/board/lists/?id=creditcard"
@@ -49,21 +49,28 @@ gall_url = {
     , "검은사막": "https://gall.dcinside.com/board/lists/?id=bd"
     , "검은사막하이델": "https://gall.dcinside.com/mgallery/board/lists/?id=heidel"
     , "로스트아크": "https://gall.dcinside.com/board/lists/?id=lostark"
+    , "중도정치": "https://gall.dcinside.com/mgallery/board/lists?id=centristpolitics"
+    , "더불어민주당": "https://gall.dcinside.com/mgallery/board/lists?id=minjudang"
+    , "이준석": "https://gall.dcinside.com/mgallery/board/lists?id=kids"
+    , "안철수x국민의힘": "https://gall.dcinside.com/mgallery/board/lists?id=csahn"
+    , "새로운보수당": "https://gall.dcinside.com/mgallery/board/lists?id=newconservativeparty"
+    , "안철수": "https://gall.dcinside.com/board/lists/?id=ancheolsu"
+    , "국민의힘": "https://gall.dcinside.com/mgallery/board/lists?id=alliescon"
+    , "이재명": "https://gall.dcinside.com/mgallery/board/lists?id=leejaemyung"
 }
 
 #############################################################################################
 #                                        << 설정값 >>
-keyword = "엘앤에프"       # 검색할 키워드
+keyword = "하이닉스"       # 검색할 키워드
 gall_name_list = [
-    # "코스피", "실전주식투자", "미국주식", "해외주식", "주식", "재테크", "슨피",
-    # "다우", "나스닥", "증권", "금융", "해외선물", "해외선물실투", "국내선물옵션", "캠퍼스개미",
-    "캠퍼스개미",
-    # "부동산"   #
-    ]
-# start_date = None
-# end_date = None
-start_date = "2023-08-01"
-end_date = "2023-10-20"
+    # "코스피", "실전주식투자", "미국주식", "해외주식",
+    "주식", "재테크", "S&P500", "다우", "나스닥", "증권", "금융", "해외선물", "해외선물실전투자", "국내선물옵션", "캠퍼스개미"
+]
+
+start_date = None
+end_date = None
+# start_date = "2023-08-01"
+# end_date = "2023-10-20"
 
 try:
     whitelist_ = whitelist[keyword]     # whitelist 설정
@@ -82,15 +89,7 @@ except Exception:
 #     crawl_url(gall_url[gall_name], keyword, blacklist_, whitelist_, start_date, end_date)  # [1. url 크롤링]
 for gall_name in gall_name_list:
     crawl_text(gall_url[gall_name], keyword, blacklist_, whitelist_, start_date, end_date)  # [2. text 크롤링]
-#
-# util.merge_crawling_results(keyword)    # [옵션 : 크롤링 전부 끝나면, 결과와 로그 파일을 합쳐서 저장한다]
 
-###############################################################################################################
+util.merge_crawling_results(keyword)    # [옵션 : 크롤링 전부 끝나면, 결과와 로그 파일을 합쳐서 저장한다]
 
-# [키워드 여러개로 검색한 결과, url 파일 여러개 합치기]
-# 합친 후, 중복되는 글을 제거함.
-# ex) "현대차", "현대자동차" 처럼 여러개 검색하고 합칠 때 사용
-# for gall_name in gall_name_list:
-#     util.merge_csv_files(save_file_name=f"merged_url_crawling_result_{keyword}_{gall_name}", read_folder_path_="./url/crawling_result", save_folder_path_="./url/merged_files", keyword=f"{gall_name}", subset='number')
 
-###############################################################################################################
