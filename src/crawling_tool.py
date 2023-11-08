@@ -317,8 +317,10 @@ def get_reply_row(url_row, reply, start_date, end_date, max_retries=5):
 #####################################
 # 기능 : url을 받아 reply_list를 리턴합니다
 # 리턴값 : reply_list
-def get_reply_list(url, time_sleep=0):
+def get_reply_list(url, time_sleep=0, max_retries=100):
     try:
+        if max_retries <= 0:
+            return []
         driver = get_driver()
         driver.get(url)
         time.sleep(time_sleep)
@@ -327,7 +329,7 @@ def get_reply_list(url, time_sleep=0):
         driver.quit()
     except Exception as e:
         print(f"[오류 : get_reply_list(time_sleep={time_sleep})] ", e)
-        reply_list = get_reply_list(url, time_sleep+2)
+        reply_list = get_reply_list(url, time_sleep+1, max_retries-1)
     return reply_list
 
 
