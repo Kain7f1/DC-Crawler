@@ -87,16 +87,16 @@ def get_soup(url, time_sleep=0, max_retries=600):
 # 기능 : 에러 로그를 검사하고, 에러가 있으면 csv 파일을 만든다
 def check_error_logs(error_logs, file_path_='./'):
     # error 발생 했는지 확인
-    max_print_print = 5
+    max_print_count = 5
     if len(error_logs) > 0:                             # 에러 로그가 존재하면
         print("[에러 발생 로그 입니다]")
         for index, error_log in enumerate(error_logs):  # 에러 로그를 출력한다
             print(f"[Index {index}] {error_log[-1]}")
-            if index >= max_print_print:                # 사용자에게 보여주기 위해 출력하는 용도이므로, 조금만 출력
+            if index >= max_print_count:                # 사용자에게 보여주기 위해 출력하는 용도이므로, 조금만 출력
                 break
         error_log_columns = ['crawler_type', 'community', 'gall_name', 'search_keyword', 'error_info']
         df_error_logs = pd.DataFrame(error_logs, columns=error_log_columns)        # df 생성 후 .csv 파일로 저장
-        df_error_logs.to_csv(file_path_, encoding='utf-8', index=False)
+        df_error_logs.to_csv(file_path_, encoding='ANSI', index=False)
         print(f"[총 {len(error_logs)}개의 에러 로그가 파일로 저장되었습니다]")
     else:                                               # 에러가 존재하지 않으면, 종료
         print("[에러가 없었습니다]")
