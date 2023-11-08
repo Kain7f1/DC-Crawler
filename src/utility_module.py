@@ -63,11 +63,13 @@ def merge_csv_files(save_file_name, read_folder_path_='./', save_folder_path_='.
 
     # 1. 폴더 내의 파일을 검색한다
     csv_file_paths = read_files(read_folder_path_, keyword=keyword, endswith='.csv')  # 폴더 내의 .csv로 끝나는 파일들 전부 검색
-    print(f'[{len(csv_file_paths)}개의 파일을 합치겠습니다]')
-    for csv_file_path in csv_file_paths:
-        print(csv_file_path)            # 합쳐질 파일들 이름 출력
 
     # 2. df 합치기
+    print(f'[{len(csv_file_paths)}개의 파일을 합치겠습니다]')
+    for csv_file_path in csv_file_paths:
+        print(csv_file_path)            # 합칠 파일들 이름 출력
+
+    # 파일 읽어오고 dataframes에 추가
     for csv_file_path in csv_file_paths:
         df_content = pd.read_csv(f"{read_folder_path_}/{csv_file_path}", encoding=read_file_encoding)
         dataframes.append(df_content)
