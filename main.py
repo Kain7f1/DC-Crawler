@@ -63,8 +63,9 @@ gall_url = {
 #                                        << 설정값 >>
 keyword = "하이닉스"       # 검색할 키워드
 gall_name_list = [
-    # "코스피", "실전주식투자", "미국주식", "해외주식",
-    "주식", "재테크", "S&P500", "다우", "나스닥", "증권", "금융", "해외선물", "해외선물실전투자", "국내선물옵션", "캠퍼스개미"
+    "코스피", "실전주식투자", "미국주식", "해외주식", "주식",
+    "재테크", "S_P500", "다우", "나스닥", "증권",
+    "금융", "해외선물", "해외선물실전투자", "국내선물옵션", "캠퍼스개미"
 ]
 
 start_date = None
@@ -87,9 +88,14 @@ except Exception:
 
 # for gall_name in gall_name_list:
 #     crawl_url(gall_url[gall_name], keyword, blacklist_, whitelist_, start_date, end_date)  # [1. url 크롤링]
-for gall_name in gall_name_list:
-    crawl_text(gall_url[gall_name], keyword, blacklist_, whitelist_, start_date, end_date)  # [2. text 크롤링]
+# for gall_name in gall_name_list:
+#     crawl_text(gall_url[gall_name], keyword, blacklist_, whitelist_, start_date, end_date)  # [2. text 크롤링]
 
-util.merge_crawling_results(keyword)    # [옵션 : 크롤링 전부 끝나면, 결과와 로그 파일을 합쳐서 저장한다]
+# util.merge_crawling_results(keyword)    # [옵션 : 크롤링 전부 끝나면, 결과와 로그 파일을 합쳐서 저장한다]
+
+#########################################################
+
+# [옵션 : 2개 이상 키워드로 검색한 경우, url 크롤링 결과를 합친다]
+# util.merge_url_crawling_results(gall_name_list)
 
 
