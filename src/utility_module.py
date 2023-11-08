@@ -262,17 +262,17 @@ def sum_dataframes(file_paths, encoding='utf-8'):
 ###############################################################################################################
 # merge_url_crawling_results()
 # 기능 : 2개 이상의 키워드로 url 크롤링 했을 경우, 결과를 합치는 함수
-def merge_url_crawling_results(gall_name_list_):
+def merge_url_crawling_results(keyword, gall_name_list_):
     start_time = datetime.now().replace(microsecond=0)
     str_start_time = str(start_time)[2:10].replace("-", "") + "_" + str(start_time)[11:].replace(":", "")
 
     # [1. url crawling file 합치기 + 중복제거]
     for gall_name in gall_name_list_:
-        util.merge_csv_files(save_file_name=f"merged_url_crawling_result_{keyword}_{gall_name}",
-                             read_folder_path_="./url/crawling_result",
-                             save_folder_path_="./url/crawling_result",
-                             keyword=f"{gall_name}",
-                             subset='number')
+        merge_csv_files(save_file_name=f"merged_url_crawling_result_{keyword}_{gall_name}",
+                        read_folder_path_="./url/crawling_result",
+                        save_folder_path_="./url/crawling_result",
+                        keyword=f"{gall_name}",
+                        subset='number')
 
     # [2. url crawling log 합치기]
     url_log_folder_path = "./url/crawling_log"
@@ -281,7 +281,7 @@ def merge_url_crawling_results(gall_name_list_):
 
     for gall_name in gall_name_list_:
         # 2-1. 폴더 내의 파일을 검색한다
-        log_files = util.read_files(folder_path_=url_log_folder_path, keyword=f"_{gall_name}", endswith='.csv')
+        log_files = read_files(folder_path_=url_log_folder_path, keyword=f"_{gall_name}", endswith='.csv')
         log_file_paths = []
         for log_file in log_files:
             log_file_paths.append(f"{url_log_folder_path}/{log_file}")
