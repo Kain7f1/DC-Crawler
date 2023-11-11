@@ -18,7 +18,6 @@ headers_dc = {
         "Cache-Control": "max-age=0",
         "sec-ch-ua-mobile": "?0",
         "DNT": "1",
-        "Upgrade-Insecure-Requests": "1",
         "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
         "Sec-Fetch-Site": "none",
         "Sec-Fetch-Mode": "navigate",
@@ -39,7 +38,6 @@ headers = headers_dc
 # 사용 전제 조건 : Users 폴더에 버전에 맞는 chromedriver.exe를 다운받아주세요
 # 기능 : driver를 반환합니다
 # 리턴값 : driver
-# 사용법 : driver = get_driver() 쓰고 driver.get(url) 처럼 사용합니다
 def get_driver():
     CHROME_DRIVER_PATH = "C:/Users/chromedriver.exe"    # (절대경로) Users 폴더에 chromedriver.exe를 설치했음
     options = webdriver.ChromeOptions()                 # 옵션 선언
