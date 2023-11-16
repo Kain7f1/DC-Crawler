@@ -151,7 +151,7 @@ def crawl_text(gall_url, search_keyword, blacklist=None, whitelist=None, start_d
         util.create_folder(f"./text/crawling_result")       # 폴더 만들기 : crawling_result
         util.create_folder(f"./text/crawling_log")          # 폴더 만들기 : crawling_log
         util.create_folder(f"./text/error_log")             # 폴더 만들기 : error_log
-        soup = cr.get_soup(gall_url)  # soup 설정
+        soup = cr.get_soup(gall_url)        # 갤러리 이름 받아오기 위한 soup 설정
         gall_id = cr.get_gall_id(gall_url)  # 갤러리 id
         gall_name = cr.get_gall_name(soup)  # 갤러리 이름
         url_file_path = util.find_file(f"{search_keyword}_{gall_name}", "./url/crawling_result")  # 키워드/갤러리이름 으로 파일을 검색한다
@@ -238,8 +238,8 @@ def crawl_text(gall_url, search_keyword, blacklist=None, whitelist=None, start_d
                             'date_created', 'time_created', 'author', 'is_reply', 'text']
             df_temp_file = pd.DataFrame(sub_df_data, columns=text_columns)
             temp_file_index = "{:03}".format(sub_df_index)
-            temp_file_path = \
-                f"./text/temp_crawling_result/{temp_file_index}_temp_text_{search_keyword}_{gall_name}.csv"  # 임시 파일 경로
+            temp_file_path = (f"./text/temp_crawling_result/"
+                              f"{temp_file_index}_temp_text_{search_keyword}_{gall_name}.csv")  # 임시 파일 경로
             df_temp_file.to_csv(temp_file_path, encoding='utf-8', index=False)    # 임시파일 저장
         except Exception as e:
             print('[sub_df 저장 에러] ', e)

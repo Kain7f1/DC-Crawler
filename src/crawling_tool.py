@@ -113,8 +113,7 @@ def get_gall_name(soup):
 
 #############################
 # is_deleted_url()
-# 기능 : url을 받아, 글이 삭제되었는지 아닌지 확인합니다
-# 입력값 : 글 url
+# 기능 : 글이 삭제되었는지 아닌지 확인합니다
 # 리턴값 : 글이 삭제되었으면 True, 글이 온전하면 False
 def is_deleted_page(soup):
     try:
