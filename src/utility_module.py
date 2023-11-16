@@ -286,7 +286,7 @@ def merge_url_crawling_results(keyword, gall_name_list_):
         for log_file in log_files:
             log_file_paths.append(f"{url_log_folder_path}/{log_file}")
         if len(log_file_paths) == 0:
-            print("으아아아", gall_name)
+            print("오류 났음", gall_name)
             continue
         merged_df = sum_dataframes(log_file_paths, encoding=read_file_encoding)
 
