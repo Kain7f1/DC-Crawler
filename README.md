@@ -3,7 +3,7 @@
 * DC-Crawler
   * 개요
   * 설정값
-  * 실행
+  * How to Use
   * Contacts
   * License
 
@@ -13,7 +13,7 @@
 대한민국 커뮤니티 dcinside의 게시글, 게시글에 달린 댓글을 크롤링합니다
 
 ## Requirements
-* [requirements.txt](https://github.com/Kain7f1/DC-Crawler/blob/main/requirements.txt) 에 기재되어 있습니다
+[requirements.txt](https://github.com/Kain7f1/DC-Crawler/blob/main/requirements.txt) 에 기재되어 있습니다
 * pandas==2.1.1
 * numpy==1.26.0
 * beautifulsoup4==4.12.2
@@ -52,7 +52,15 @@
 
 ---
 
+## How to Use
 
+![image](https://github.com/Kain7f1/DC-Crawler/assets/141689851/57428171-69e3-4ba0-94c1-4db2c1b97e5e)
+
+설정값을 입력한 후, 한번에 실행하면 됩니다
+
+* crawl_url() : 게시글 url 수집
+* crawl_text() : 게시글/댓글 text 수집
+* merge_crawling_results() : 수집 결과를 하나로 합친다
 
 
 ## Contacts
