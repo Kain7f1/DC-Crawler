@@ -30,7 +30,7 @@ gall_url = {
     , "해외주식": "https://gall.dcinside.com/mgallery/board/lists/?id=tenbagger"
     , "주식": "https://gall.dcinside.com/board/lists/?id=neostock"
     , "재테크": "https://gall.dcinside.com/mgallery/board/lists?id=jaetae"
-    , "부동산": "https://gall.dcinside.com/board/lists/?id=immovables"         # 부동산갤 blacklist : ["서울말", "경출요뽑요", "조희팔"]
+    , "부동산": "https://gall.dcinside.com/board/lists/?id=immovables"
     , "S&P500": "https://gall.dcinside.com/mini/board/lists/?id=snp500"
     , "다우": "https://gall.dcinside.com/mgallery/board/lists?id=dow100"
     , "나스닥": "https://gall.dcinside.com/mgallery/board/lists?id=nasdaq"
@@ -61,32 +61,33 @@ gall_url = {
 
 #############################################################################################
 #                                        << 설정값 >>
-keyword = "카카오"       # 검색할 키워드
+# [검색할 키워드를 설정합니다]
+keyword = "기아"
+# [갤러리를 선택할 수 있습니다. 선택된 갤러리에서만 크롤링이 진행됩니다]
 gall_name_list = [
-    # "코스피", "실전주식투자",
-    # "미국주식", "해외주식", "주식",
-    # "재테크", "S&P500", "다우", "나스닥",
-    "증권",
+    "코스피", "실전주식투자", "미국주식", "해외주식", "주식",
+    "재테크", "S&P500", "다우", "나스닥", "증권",
     "금융", "해외선물", "해외선물실전투자", "국내선물옵션", "캠퍼스개미"
 ]
 
+# [크롤링 기간을 설정할 수 있습니다]
 start_date = None
 end_date = None
 # start_date = "2023-08-01"
 # end_date = "2023-10-20"
 
-try:
-    whitelist_ = whitelist[kedjhyword]     # whitelist 설정
-except Exception:
-    whitelist_ = None                   # whitelist 디폴트 값
+# [blacklist, whitelist 의 디폴트 값을 설정할 수 있습니다]
 try:
     blacklist_ = blacklist[keyword]     # blacklist 설정
 except Exception:
-    blacklist_ = ["http"]     # 코스피갤 blacklist : url만
+    blacklist_ = ["http"]               # blacklist 디폴트 값
+try:
+    whitelist_ = whitelist[keyword]     # whitelist 설정
+except Exception:
+    whitelist_ = None                   # whitelist 디폴트 값
 
 ###############################################################################################################
 #                                            << 실행하는 곳 >>
-
 for gall_name in gall_name_list:
     crawl_url(gall_url[gall_name], keyword, blacklist_, whitelist_, start_date, end_date)  # [1. url 크롤링]
 for gall_name in gall_name_list:
