@@ -61,10 +61,12 @@ gall_url = {
 
 #############################################################################################
 #                                        << 설정값 >>
-keyword = "현대차"       # 검색할 키워드
+keyword = "카카오"       # 검색할 키워드
 gall_name_list = [
-    "코스피", "실전주식투자", "미국주식", "해외주식", "주식",
-    "재테크", "S&P500", "다우", "나스닥", "증권",
+    # "코스피", "실전주식투자",
+    # "미국주식", "해외주식", "주식",
+    # "재테크", "S&P500", "다우", "나스닥",
+    "증권",
     "금융", "해외선물", "해외선물실전투자", "국내선물옵션", "캠퍼스개미"
 ]
 
@@ -74,14 +76,13 @@ end_date = None
 # end_date = "2023-10-20"
 
 try:
-    whitelist_ = whitelist[keyword]     # whitelist 설정
+    whitelist_ = whitelist[kedjhyword]     # whitelist 설정
 except Exception:
     whitelist_ = None                   # whitelist 디폴트 값
 try:
     blacklist_ = blacklist[keyword]     # blacklist 설정
 except Exception:
-    blacklist_ = ["http"]               # blacklist 디폴트 값
-    # blacklist_ = ["http", "의 주식"]     # 코스피갤 blacklist : url만
+    blacklist_ = ["http"]     # 코스피갤 blacklist : url만
 
 ###############################################################################################################
 #                                            << 실행하는 곳 >>

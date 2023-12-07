@@ -268,7 +268,7 @@ def get_post_row(url_row, soup, blacklist, whitelist, max_retries=3):
                    url_row['date_created'], url_row['time_created'], url_row['author'], is_reply, text]
 
     except Exception as e:
-        print(f"[오류 : get_content_row()] ", e)
+        print(f"[오류 : get_post_row()] ", e)
         new_row = get_post_row(url_row, soup, blacklist, whitelist, max_retries-1)
     return new_row, is_ignore, is_black
 
