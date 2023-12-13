@@ -200,8 +200,8 @@ def get_url_row(element, search_info, blacklist, whitelist, start_date, end_date
             is_ignore = True
             return new_row, is_ignore, is_black    # 스킵
         # [ignore 2. 공지/광고글]
-        author = element.find('td', class_='gall_writer').get_text().replace("\n", "").strip()    # 글쓴이
-        if author == "운영자":            # 광고글은 글쓴이가 "운영자"
+        writer = element.find('td', class_='gall_writer').get_text().replace("\n", "").strip()    # 글쓴이
+        if writer == "운영자":            # 광고글은 글쓴이가 "운영자"
             is_ignore = True
             return new_row, is_ignore, is_black    # 광고글 스킵
         # [ignore 3. 블랙리스트]
@@ -233,7 +233,7 @@ def get_url_row(element, search_info, blacklist, whitelist, start_date, end_date
         url = "https://gall.dcinside.com" + element.select_one("td.gall_tit a")['href']   # 글 url
         title = preprocess_title(title)                                                   # 글 제목
         recommend = element.find('td', class_='gall_recommend').get_text()                # 추천수
-        new_row = [search_info["community"], search_info["gall_id"], search_info["search_keyword"], number, date_created, time_created, url, title, author, recommend]
+        new_row = [search_info["community"], search_info["gall_id"], search_info["search_keyword"], number, date_created, time_created, url, title, writer, recommend]
     except Exception as e:
         print("[오류 발생, 반복] [get_url_row()] ", e)
         new_row, is_ignore, is_black = get_url_row(element, search_info, blacklist, whitelist, start_date, end_date, max_retries-1)
@@ -265,7 +265,7 @@ def get_post_row(url_row, soup, blacklist, whitelist, max_retries=3):
         text = url_row['title'] + " " + text    # title의 유의미한 정보를 text에 붙여준다
         # [크롤링한 정보를 new_row에 저장한다]
         new_row = [url_row['community'], url_row['gall_id'], url_row['search_keyword'], url_row['number'],
-                   url_row['date_created'], url_row['time_created'], url_row['author'], is_reply, text]
+                   url_row['date_created'], url_row['time_created'], url_row['writer'], is_reply, text]
 
     except Exception as e:
         print(f"[오류 : get_post_row()] ", e)
@@ -301,10 +301,10 @@ def get_reply_row(url_row, reply, start_date, end_date, max_retries=5):
                 return new_row, is_ignore    # 스킵
         text = reply.find("p", {"class": "usertxt ub-word"}).text  # 댓글 내용 추출
         text = util.preprocess_text_dc(text)  # 전처리
-        author = reply.select_one("span.nickname").get_text().strip()
+        writer = reply.select_one("span.nickname").get_text().strip()
         # [크롤링한 정보를 new_row에 저장한다]
         new_row = [url_row['community'], url_row['gall_id'], url_row['search_keyword'], url_row['number'],
-                   date_created, time_created, author, is_reply, text]
+                   date_created, time_created, writer, is_reply, text]
     except Exception as e:
         print(f"[오류 : get_content_row()] ", e)
         new_row, is_ignore = get_reply_row(url_row, reply, start_date, end_date, max_retries-1)
