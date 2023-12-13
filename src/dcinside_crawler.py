@@ -102,7 +102,7 @@ def crawl_url(gall_url, search_keyword, blacklist=None, whitelist=None, start_da
         print(f"[{gall_name} : '{search_keyword}' 크롤링 결과]")
         print(f"[소요된 시간] {crawling_duration} 초")
         print(f"[수집한 정보] {row_count} 개")
-        url_columns = ['community', 'gall_id', 'search_keyword', 'number', 'date_created', 'time_created', 'url', 'title', 'author', 'recommend']
+        url_columns = ['community', 'gall_id', 'search_keyword', 'number', 'date_created', 'time_created', 'url', 'title', 'writer', 'recommend']
         df_crawling_result = pd.DataFrame(url_rows, columns=url_columns)
         df_crawling_result.to_csv(crawling_result_file_path, encoding='utf-8', index=False)  # df의 내용을 csv 형식으로 저장합니다
 
@@ -235,7 +235,7 @@ def crawl_text(gall_url, search_keyword, blacklist=None, whitelist=None, start_d
             # [임시파일 저장 : .csv 파일]
             print("[sub_df 크롤링 결과 임시파일을 저장합니다]")
             text_columns = ['community', 'gall_id', 'search_keyword', 'number',
-                            'date_created', 'time_created', 'author', 'is_reply', 'text']
+                            'date_created', 'time_created', 'writer', 'is_reply', 'text']
             df_temp_file = pd.DataFrame(sub_df_data, columns=text_columns)
             temp_file_index = "{:03}".format(sub_df_index)
             temp_file_path = (f"./text/temp_crawling_result/"

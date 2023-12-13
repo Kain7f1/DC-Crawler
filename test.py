@@ -12,4 +12,9 @@ gall_name_list = [
     "금융", "해외선물", "해외선물실전투자", "국내선물옵션", "캠퍼스개미"
 ]
 
-util.merge_csv_files("a", "target", "target")
+read_folder_path = "./target"
+save_folder_path = "./target/result_files"
+util.merge_csv_files(save_file_name="a",
+                     read_folder_path_=read_folder_path,
+                     save_folder_path_=save_folder_path
+                     )
