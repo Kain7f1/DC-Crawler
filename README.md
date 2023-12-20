@@ -1,5 +1,9 @@
 # DC-Crawler
 
+DCinside 게시글/댓글 text 크롤러
+
+---
+
 * ### 차례
   * 기능
   * 설정값
@@ -10,11 +14,10 @@
 ---
 
 ## 기능
-* 대한민국 커뮤니티 dcinside의 게시글과, 게시글에 달린 댓글 text를 수집* 합니다
+* 대한민국 커뮤니티 dcinside의 게시글과, 게시글에 달린 댓글 text를 수집합니다
 * `검색 키워드`, `검색 기간`을 설정할 수 있습니다
 * 중간에 크롤링이 정지되더라도, 진행상황이 저장되므로 이어서 진행할 수 있습니다
 * `크롤링 로그`와 `오류 로그`는 파일로 저장되어 확인할 수 있습니다
-* 
   
 ## Requirements
 * [requirements.txt](https://github.com/Kain7f1/DC-Crawler/blob/main/requirements.txt)
@@ -63,12 +66,11 @@
   
 ![image](https://github.com/Kain7f1/DC-Crawler/assets/141689851/57428171-69e3-4ba0-94c1-4db2c1b97e5e)
 
-
-
 * `crawl_url()` : 게시글 url 수집
 * `crawl_text()` : 게시글/댓글 text 수집
 * `merge_crawling_results()` : 수집 결과를 하나로 합친다
 
+---
 
 ## Contacts
 
@@ -77,6 +79,8 @@
 
 ### E-mail
 * kain7f1@gmail.com
+
+---
 
 ## License
 
