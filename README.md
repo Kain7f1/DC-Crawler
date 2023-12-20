@@ -1,27 +1,31 @@
 # DC-Crawler
 
-* DC-Crawler
-  * 개요
+* ### 차례
+  * 기능
   * 설정값
-  * How to Use
+  * 사용법
   * Contacts
   * License
 
 ---
 
-## 개요
-대한민국 커뮤니티 dcinside의 게시글, 게시글에 달린 댓글을 크롤링합니다
-
+## 기능
+* 대한민국 커뮤니티 dcinside의 게시글과, 게시글에 달린 댓글 text를 수집* 합니다
+* `검색 키워드`, `검색 기간`을 설정할 수 있습니다
+* 중간에 크롤링이 정지되더라도, 진행상황이 저장되므로 이어서 진행할 수 있습니다
+* `크롤링 로그`와 `오류 로그`는 파일로 저장되어 확인할 수 있습니다
+* 
+  
 ## Requirements
-[requirements.txt](https://github.com/Kain7f1/DC-Crawler/blob/main/requirements.txt) 에 기재되어 있습니다
-* pandas==2.1.1
-* numpy==1.26.0
-* beautifulsoup4==4.12.2
-* selenium==3.14.0
-* requests==2.31.0
+* [requirements.txt](https://github.com/Kain7f1/DC-Crawler/blob/main/requirements.txt)
+  * pandas==2.1.1
+  * numpy==1.26.0
+  * beautifulsoup4==4.12.2
+  * selenium==3.14.0
+  * requests==2.31.0
 
 ## 설정값
-모든 설정은 main 함수에서 이루어집니다
+모든 설정은 [main.py](https://github.com/Kain7f1/DC-Crawler/blob/main/main.py) 에서 이루어집니다
 
 ### blacklist
 ![image](https://github.com/Kain7f1/DC-Crawler/assets/141689851/efdf20f4-a25e-4b6f-9777-0dd8d7f27376)
@@ -43,24 +47,27 @@
 
 ### gall_name_list
 ![image](https://github.com/Kain7f1/DC-Crawler/assets/141689851/a9ca285c-bbc8-4ce7-b135-54fa557514a0)
-* 갤러리를 선택할 수 있습니다. 선택된 갤러리에서만 크롤링이 진행됩니다
+* 갤러리를 선택할 수 있습니다
+* 선택된 갤러리에서만 크롤링이 진행됩니다
 
 ### start_date, end_date
 ![image](https://github.com/Kain7f1/DC-Crawler/assets/141689851/10ed836c-1be0-4e16-8e9e-67608d9e49c7)
-* 크롤링 기간을 설정할 수 있습니다.
-* 기간에 관계 없이 존재하는 모든 데이터를 크롤링하려면 None으로 설정합니다
+* 크롤링 기간을 설정할 수 있습니다
+* 기간에 관계 없이, 존재하는 모든 데이터를 크롤링하려면 `None`으로 설정합니다
 
 ---
 
-## How to Use
-
+## 사용법
+* 실행 또한 [main.py](https://github.com/Kain7f1/DC-Crawler/blob/main/main.py) 에서 이루어집니다
+* 설정값을 입력한 후, 한번에 실행하면 됩니다
+  
 ![image](https://github.com/Kain7f1/DC-Crawler/assets/141689851/57428171-69e3-4ba0-94c1-4db2c1b97e5e)
 
-설정값을 입력한 후, 한번에 실행하면 됩니다
 
-* crawl_url() : 게시글 url 수집
-* crawl_text() : 게시글/댓글 text 수집
-* merge_crawling_results() : 수집 결과를 하나로 합친다
+
+* `crawl_url()` : 게시글 url 수집
+* `crawl_text()` : 게시글/댓글 text 수집
+* `merge_crawling_results()` : 수집 결과를 하나로 합친다
 
 
 ## Contacts
