@@ -52,7 +52,11 @@ def crawl_url(gall_url, search_keyword, blacklist=None, whitelist=None, start_da
         return
 
     # [1. url 크롤링]
+    flag = False
     for search_pos in range(max_number, 0, -10000):
+        if flag:
+            break
+
         # [1만 단위 검색결과의 last_page 받아오기]
         last_page = 1
         try:
@@ -66,6 +70,8 @@ def crawl_url(gall_url, search_keyword, blacklist=None, whitelist=None, start_da
             error_logs.append([crawler_type, community, gall_name, search_keyword, error_info])
         # [1-1.페이지 넘기면서 크롤링]
         for page in range(1, last_page+1):          # page = 1만 단위 검색결과 페이지
+            if flag:
+                break
             element_list = []
             # [1-1-1. 검색결과 페이지 정보 가져오기 (1만 단위 검색결과)]
             try:
@@ -79,7 +85,10 @@ def crawl_url(gall_url, search_keyword, blacklist=None, whitelist=None, start_da
             # [1-1-2. 글 한 개씩 정보 가져오기]
             for element in element_list:
                 try:
-                    new_row, is_ignore, is_black = cr.get_url_row(element, search_info, blacklist, whitelist, start_date, end_date)
+                    new_row, is_ignore, is_black, is_break = cr.get_url_row(element, search_info, blacklist, whitelist, start_date, end_date)
+                    if is_break:
+                        flag = True
+                        break
                     if is_ignore:    # blacklist의 단어가 있거나, 광고or공지글
                         if is_black:    # blacklist로 걸러지면 black_count +1
                             black_count += 1
@@ -129,6 +138,7 @@ def crawl_url(gall_url, search_keyword, blacklist=None, whitelist=None, start_da
 #####################################
 # 기능 : dcinside 글 url을 타고 들어가서 본문과 댓글 정보를 수집한다
 def crawl_text(gall_url, search_keyword, blacklist=None, whitelist=None, start_date=None, end_date=None, chunk_size=100):
+
     # [0-1. 기본값 세팅]
     crawling_start_time = datetime.now().replace(microsecond=0)  # 시작 시각 : 실행 시간을 잴 때 사용
     crawler_type = "text_crawler"  # 크롤러 타입
@@ -136,6 +146,7 @@ def crawl_text(gall_url, search_keyword, blacklist=None, whitelist=None, start_d
     black_count = 0  # blacklist로 걸러진 글의 수
     str_start_time = (str(crawling_start_time)[2:10].replace("-", "")
                       + "_" + str(crawling_start_time)[11:].replace(":", ""))
+
     # [0-2. default값 설정]
     error_logs = []
     gall_name = ""
@@ -146,6 +157,7 @@ def crawl_text(gall_url, search_keyword, blacklist=None, whitelist=None, start_d
         whitelist = []
     print(f"blacklist = {blacklist}")
     print(f"whitelist = {whitelist}")
+
     try:
         util.create_folder(f"./text/temp_crawling_result")  # 폴더 만들기 : temp_crawling_result
         util.create_folder(f"./text/crawling_result")       # 폴더 만들기 : crawling_result
@@ -180,14 +192,18 @@ def crawl_text(gall_url, search_keyword, blacklist=None, whitelist=None, start_d
         print("[crawl_text() 종료] url 파일에 저장된 데이터가 없습니다.")
         return
     print(f"[df_url을 불러왔습니다. 데이터 수 : {url_row_count}]")
-    sub_dfs = util.split_df_into_sub_dfs(df_url, chunk_size=chunk_size)     # df를 chunk_size 단위로 쪼갬
+
+    # df를 chunk_size 단위로 쪼갬
+    sub_dfs = util.split_df_into_sub_dfs(df_url, chunk_size=chunk_size)
     print(f"[데이터를 sub_df 단위로 쪼갰습니다. sub_df의 수 : {len(sub_dfs)}]")
+
     for sub_df_index in range(len(sub_dfs)):
         # [1-1. 작업했던 파일이 존재하면, 다음 것부터 시작한다]
         if sub_df_index <= done_index:
             continue
         sub_df = sub_dfs[sub_df_index]  # 작업할 단위 설정 : dub_df
         sub_df_data = []                # 데이터를 저장할 공간 : sub_df_data
+
         for index, url_row in sub_df.iterrows():
             # [1-1-a. sub_df에서, url_row 1개씩 읽어온다]
             print(f"[{sub_df_index * chunk_size + index + 1}/{url_row_count}] 본문 페이지 : {url_row['url']}")
@@ -196,6 +212,7 @@ def crawl_text(gall_url, search_keyword, blacklist=None, whitelist=None, start_d
                 continue                          # 글이 삭제되었으면, 다음 row로 넘어갑니다
             print("{step 1} 본문 정보를 추가하겠습니다")
             new_row, is_ignore, is_black = cr.get_post_row(url_row, soup, blacklist, whitelist)  # 본문 정보 크롤링
+
             if is_ignore:
                 print("{end} 무의미한 정보는 수집하지 않습니다 ")
                 if is_black:    # blacklist로 걸러지면 black_count +1
@@ -204,13 +221,16 @@ def crawl_text(gall_url, search_keyword, blacklist=None, whitelist=None, start_d
             else:
                 sub_df_data.append(new_row)  # sub_df_data에 크롤링한 정보 저장
                 print("{step 1} 본문 정보를 추가했습니다 : ", new_row[-1])
+
             # [1-1-b. 댓글 리스트를 가져온다]
             reply_list = cr.get_reply_list(url_row['url'])  # 댓글 리스트 soup
             print("{step 2} 댓글 리스트를 불러왔습니다")
+
             # [1-1-b-1. 댓글이 없으면 다음 글로 넘어감]
             if not reply_list:
                 print("{end} 댓글이 존재하지 않습니다")
                 continue
+
             # [1-1-b-2. 댓글이 있으면 댓글 정보를 가져온다]
             print("{step 3} 댓글 정보를 크롤링합니다")
             for reply in reply_list:
@@ -223,6 +243,7 @@ def crawl_text(gall_url, search_keyword, blacklist=None, whitelist=None, start_d
                         continue
                     sub_df_data.append(new_row)     # sub_df_data에 new_row를 추가한다
                     print(f"[댓글을 추가했습니다] {new_row}")
+
                 except Exception as e:
                     print(f"[댓글 크롤링 에러] {e}")
                     error_info = traceback.format_exc()
@@ -230,6 +251,7 @@ def crawl_text(gall_url, search_keyword, blacklist=None, whitelist=None, start_d
                     cr.check_error_logs(error_logs, error_log_file_path)
                     continue
             print("{step 3 종료} 댓글 크롤링 완료하였습니다")
+
         # [1-2. sub_df 크롤링 결과를 csv 파일로 저장]
         try:
             # [임시파일 저장 : .csv 파일]
@@ -241,6 +263,7 @@ def crawl_text(gall_url, search_keyword, blacklist=None, whitelist=None, start_d
             temp_file_path = (f"./text/temp_crawling_result/"
                               f"{temp_file_index}_temp_text_{search_keyword}_{gall_name}.csv")  # 임시 파일 경로
             df_temp_file.to_csv(temp_file_path, encoding='utf-8', index=False)    # 임시파일 저장
+
         except Exception as e:
             print('[sub_df 저장 에러] ', e)
             error_info = traceback.format_exc()
@@ -254,6 +277,7 @@ def crawl_text(gall_url, search_keyword, blacklist=None, whitelist=None, start_d
     crawling_end_time = datetime.now().replace(microsecond=0)                              # 종료 시각 : 실행 시간을 잴 때 사용
     crawling_duration = round((crawling_end_time - crawling_start_time).total_seconds())     # 실행 시간 : 크롤링에 걸린 시간
     error_count = len(error_logs)  # 에러가 발생한 횟수
+
     # [2-2. 임시파일 합쳤으면, 임시파일을 삭제한다]
     util.delete_files(folder_path="./text/temp_crawling_result", keyword=f"{search_keyword}_{gall_name}")
 

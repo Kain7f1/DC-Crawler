@@ -62,19 +62,20 @@ gall_url = {
 #############################################################################################
 #                                        << 설정값 >>
 # [검색할 키워드를 설정합니다]
-keyword = "기아"
+keyword = "펄어비스"
 # [갤러리를 선택할 수 있습니다. 선택된 갤러리에서만 크롤링이 진행됩니다]
 gall_name_list = [
-    "코스피", "실전주식투자", "미국주식", "해외주식", "주식",
-    "재테크", "S&P500", "다우", "나스닥", "증권",
-    "금융", "해외선물", "해외선물실전투자", "국내선물옵션", "캠퍼스개미"
+    "검은사막하이델"
+    # "코스피", "실전주식투자", "미국주식", "해외주식", "주식",
+    # "재테크", "S&P500", "다우", "나스닥", "증권",
+    # "금융", "해외선물", "해외선물실전투자", "국내선물옵션", "캠퍼스개미"
 ]
 
 # [크롤링 기간을 설정할 수 있습니다]
-start_date = None
-end_date = None
-# start_date = "2023-08-01"
-# end_date = "2023-10-20"
+# start_date = None
+# end_date = None
+start_date = "2023-12-01"
+end_date = "2024-01-17"
 
 # [blacklist, whitelist 의 디폴트 값을 설정할 수 있습니다]
 try:
@@ -88,12 +89,12 @@ except Exception:
 
 ###############################################################################################################
 #                                            << 실행하는 곳 >>
-for gall_name in gall_name_list:
-    crawl_url(gall_url[gall_name], keyword, blacklist_, whitelist_, start_date, end_date)  # [1. url 크롤링]
+# for gall_name in gall_name_list:
+#     crawl_url(gall_url[gall_name], keyword, blacklist_, whitelist_, start_date, end_date)  # [1. url 크롤링]
 for gall_name in gall_name_list:
     crawl_text(gall_url[gall_name], keyword, blacklist_, whitelist_, start_date, end_date)  # [2. text 크롤링]
 
-util.merge_crawling_results(keyword)    # [옵션 : 크롤링 전부 끝나면, 결과와 로그 파일을 합쳐서 저장한다]
+# util.merge_crawling_results(keyword)    # [옵션 : 크롤링 전부 끝나면, 결과와 로그 파일을 합쳐서 저장한다]
 
 #########################################################
 
