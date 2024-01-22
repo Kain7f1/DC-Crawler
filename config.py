@@ -1,11 +1,7 @@
 #############################################################################
-# 만든이 : Kain7f1
-# 생성일 : 2023-10-08
-# 전제 : 실행하기 전에, Users 폴더에 chromedriver.exe를 현재 크롬 버전에 맞게 다운받아주세요
-# 기능 : dcinside 크롤링 실행 함수
+# Kain7f1 / 2024-01-22
+# config.py 파일에서 설정값을 입력합니다.
 
-from dcinside_crawler import crawl_url, crawl_text
-import utility_module as util
 
 # 검색할 키워드(keyword)의 블랙리스트 : 목적에 맞지 않는 콘텐츠를 걸러내는 기능을 한다
 blacklist = {

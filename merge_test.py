@@ -1,6 +1,4 @@
 import utility_module as util
-from datetime import datetime
-import pandas as pd
 
 # [특정 키워드 포함된 데이터 지우기]
 # util.delete_rows(delete_keyword="코스", column="text")
